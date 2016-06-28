@@ -1,0 +1,123 @@
+#===============================================================================
+# Determines the amount of output to screen during the run
+#===============================================================================
+/control/verbose 1
+/run/verbose 1
+/gps/verbose 0
+/tracking/verbose 0
+
+#===============================================================================
+# If we have visualisation, the trajectories should be stored in order to see 
+# them, otherwise no need to store them (saves memory).
+#===============================================================================
+# Uncomment this line if you want no visualisation
+/tracking/storeTrajectory 0
+# Uncomment this line if you want visualisation
+#/control/execute mac/vis.mac
+# Uncomment this line if you want to see the geometry without any tracks first
+#/vis/viewer/flush
+#exit
+
+#===============================================================================
+# Inactivate unused processes to speed up computation
+#===============================================================================
+# Utility process (for development purposes only)
+/process/inactivate kill
+# These processes are only used for scattering in gases
+/process/inactivate LowEnergyIoni
+/process/inactivate LowEnBrem
+# For Cambridge this is the most accurate (but much slower) option
+#/process/ss/multistep false
+
+#===============================================================================
+# Commands for setting up the particle source (stored in a separate .mac file).
+#===============================================================================
+/control/execute mac/Pointsource.mac
+
+#===============================================================================
+# If a field is present we need to execute some setup commands for it (stored
+# in a separate .mac file). Below are some examples
+#===============================================================================
+# Uncomment this line for tracing in the Elstar EM field @ WD = 4mm
+#/control/execute mac/ElstarField_WD4mm.mac
+# Uncomment this line for tracing in the XL30 EM field @ WD = 5mm
+#/control/execute mac/XL30Field_WD5mm.mac
+
+# For the pn junction field
+#/control/execute mac/AtlasField.mac
+
+# Translate the pn junction field to the right position w.r.t. the column
+#/field/setTranslationpn-junction 0.0 0.0 -5.0 mm
+
+#/field/outputAxisField testcam.dat 0.0004 0.0 -5.001 0.0004 0.0 -4.999 500
+
+#===============================================================================
+# Setup detectors
+#===============================================================================
+# Determine amount of output to screen: only once every 100 events
+/detectors/verbose 100
+# Determine the behaviour of the Plane detector
+# If directional is set to true you should supply a direction vector. This 
+# vector gives the direction that the particle needs to travel in, in order to 
+# be detected.
+/detectors/Plane/directional true
+/detectors/Plane/direction   0.0 0.0 1.0
+/detectors/Plane/multipleHits false
+
+# Example of how to change a material on the fly
+#/detectors/setmaterial LogSample Silicon
+
+#===============================================================================
+# Gun energy and position (not defined in the gps .mac file).
+#===============================================================================
+/gps/energy 5.0 keV
+/gps/pos/centre 0.0 0.0 0.0 mm
+
+/control/verbose 2
+#===============================================================================
+# Why is nothing happening?
+#===============================================================================
+# The file SEM.mac contains three demos in it but they are all commented out
+# So, if you want to run one of the demos either edit the SEM.mac file
+# or enter one of the lines below manually:
+# /control/execute TwoPointContrast.mac
+# /control/execute LineScan.mac
+# /control/execute ImageScan.mac
+#
+# Alternatively you can play around with the Geant4 commands that are available
+# Use help to get an overview of what's there...
+#===============================================================================
+/control/verbose 1
+
+#===============================================================================
+# NOTE:
+# Below you will find three examples of running the program
+# In all cases the statistics have been reduced considerable in order to
+# let the examples finish quickly. For serious work you will need to edit
+# the corresponding macro files and increase the statistics and/or the
+# number of pixels used.
+#===============================================================================
+
+
+#===============================================================================
+# Point test with good statistics
+#===============================================================================
+# Uncomment this line if you want to compute the contrast between two points
+#/control/execute TwoPointContrast.mac
+
+#===============================================================================
+# Do a linescan
+#===============================================================================
+# Uncomment this line if you want to do a line scan
+#/control/execute LineScan.mac
+
+#===============================================================================
+# Do a complete image (takes a lot of time!)
+#===============================================================================
+# Uncomment this line if you want to do a full image
+/control/execute ImageScan.mac
+ 
+#===============================================================================
+# Do some simple tests to check that both fields are present
+#===============================================================================
+#/control/execute GeomTest.mac

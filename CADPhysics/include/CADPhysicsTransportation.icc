@@ -1,0 +1,131 @@
+// CADPhysicsTransportation.icc
+//
+// Process based on G4Transportation, Geant4 v. 8.0p1. Original Geant4 disclaimer follows:
+// ********************************************************************
+// * DISCLAIMER                                                       *
+// *                                                                  *
+// * The following disclaimer summarizes all the specific disclaimers *
+// * of contributors to this software. The specific disclaimers,which *
+// * govern, are listed with their locations in:                      *
+// *   http://cern.ch/geant4/license                                  *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.                                                             *
+// *                                                                  *
+// * This  code  implementation is the  intellectual property  of the *
+// * GEANT4 collaboration.                                            *
+// * By copying,  distributing  or modifying the Program (or any work *
+// * based  on  the Program)  you indicate  your  acceptance of  this *
+// * statement, and all its terms.                                    *
+// ********************************************************************
+//
+//
+// $Id: CADPhysicsTransportation.icc,.._CsvS_.. 1.16 2007-12-11 15:53:48+01 nlv14221 Txt $
+// GEANT4 tag $Name:  $
+//
+
+// 
+//
+//        Inline function implementation.
+//
+// =======================================================================
+// Created:  9 June 1998, J. Apostolakis
+// =======================================================================
+//
+
+inline void
+CADPhysicsTransportation::SetPropagatorInField( G4PropagatorInField* pFieldPropagator)
+{
+   fFieldPropagator= pFieldPropagator;
+}
+
+inline G4PropagatorInField* CADPhysicsTransportation::GetPropagatorInField()
+{
+   return fFieldPropagator;
+}
+
+inline G4bool CADPhysicsTransportation::DoesGlobalFieldExist()
+{
+  G4TransportationManager* transportMgr;
+  transportMgr= G4TransportationManager::GetTransportationManager();
+
+  // fFieldExists= transportMgr->GetFieldManager()->DoesFieldExist();
+  // return fFieldExists;
+  return transportMgr->GetFieldManager()->DoesFieldExist();
+}
+
+inline void CADPhysicsTransportation::SetVerboseLevel( G4int verboseLev )
+{
+  fVerboseLevel= verboseLev;
+}
+
+inline G4int CADPhysicsTransportation::GetVerboseLevel( ) const
+{
+  return fVerboseLevel;
+}
+
+inline G4double CADPhysicsTransportation::GetThresholdWarningEnergy() const
+{
+  return fThreshold_Warning_Energy;
+}
+ 
+inline G4double CADPhysicsTransportation::GetThresholdImportantEnergy() const
+{ 
+  return fThreshold_Important_Energy;
+} 
+
+inline G4int CADPhysicsTransportation::GetThresholdTrials() const
+{
+  return fThresholdTrials;
+}
+
+inline void CADPhysicsTransportation::SetThresholdWarningEnergy( G4double newEnWarn )
+{
+  fThreshold_Warning_Energy= newEnWarn;
+}
+
+inline void CADPhysicsTransportation::SetThresholdImportantEnergy( G4double newEnImp )
+{
+  fThreshold_Important_Energy = newEnImp; 
+}
+
+inline void CADPhysicsTransportation::SetThresholdTrials(G4int newMaxTrials )
+{
+  fThresholdTrials = newMaxTrials; 
+}
+
+     // Get/Set parameters for killing loopers: 
+     //   Above 'important' energy a 'looping' particle in field will 
+     //   *NOT* be abandoned, except after fThresholdTrials attempts.
+     // Below Warning energy, no verbosity for looping particles is issued
+
+inline G4double CADPhysicsTransportation::GetMaxEnergyKilled() const
+{
+  return fMaxEnergyKilled; 
+}
+
+inline G4double CADPhysicsTransportation::GetSumEnergyKilled() const
+{
+  return fSumEnergyKilled;
+}
+
+inline void CADPhysicsTransportation::ResetKilledStatistics(G4int report)
+{
+  if( report ) { 
+    G4cout << " CADPhysicsTransportation: Statistics for looping particles " << G4endl;
+    G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
+    G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
+  } 
+
+  fSumEnergyKilled= 0;
+  fMaxEnergyKilled= -1.0*GeV;
+}
+     // Statistics for tracks killed (currently due to looping in field)
+
+inline void CADPhysicsTransportation::EnableShortStepOptimisation(G4bool optimiseShortStep)
+{
+  fShortStepOptimisation=optimiseShortStep;
+}

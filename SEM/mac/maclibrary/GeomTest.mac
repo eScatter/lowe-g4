@@ -1,0 +1,36 @@
+#===============================================================================
+# Test of the geometry
+# First we do a point at the p-side of the junction (x=0.4micron)
+# Next we do a point at the n-side of the junction (x=0.6micron)
+# Particle is immediately killed if it hits the sample
+# Tracking is printed to screen
+#===============================================================================
+/detectors/verbose 1
+/tracking/verbose 1
+/gps/verbose 1
+/run/verbose 1
+
+
+/detectors/setmaterial LogSample BlackHole
+
+/field/outputAxisField testfield_position1.dat 0.0004 0.0 -5.001 0.0004 0.0 -4.999 500
+/gps/pos/centre 0.0004 0.0 -4.9999 mm
+/run/beamOn 1
+
+/field/outputAxisField testfield_position2.dat 0.0006 0.0 -5.001 0.0006 0.0 -4.999 500
+/gps/pos/centre 0.0006 0.0 -4.9999 mm
+/run/beamOn 1
+
+# Now trace a particle moving up and hitting the elstar detector and make a picture
+/tracking/storeTrajectory 1
+/control/execute mac/vis.mac
+/gps/energy 1 eV
+/gps/pos/centre 0.0 0.0 -5.0 mm
+/gps/direction 0.0 0.0 1.0
+# First a dummy run to work around the visualization bug (forgets the geometry in the first run)
+/run/beamOn 1
+# The command below gives an output file energycheck.dat containing information
+# about the conservation of energy along the track
+/field/checkField true
+/run/beamOn 1
+/detectors/TLD/outputHits XL30TLDHits.dat

@@ -1,0 +1,21 @@
+# Commands for setting up the particle source. 
+# The direction of the particles is fixed. The source is a point source (radius = 0).
+/gps/particle e-
+
+# Gaussian source just above sample 
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/rot1 1.0 0.0 0.0
+/gps/pos/rot2 0.0 1.0 0.0
+/gps/pos/radius 0.0 mm
+/gps/ang/type planar
+/gps/direction 0.0 0.0  -1.0
+/gps/number 1
+/gps/energy 1.0 keV
+
+# For Elstar WD=4mm use this line:
+##/gps/pos/centre 0.0 0.0 -3.998 mm
+
+# For Elstar WD=1mm use this line:
+##/gps/pos/centre 0.0 0.0 -0.998 mm
+

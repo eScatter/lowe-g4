@@ -1,0 +1,6 @@
+##/mydet/detFilename E{loopvar}.txt 
+/gps/energy {loopvar} eV
+/run/beamOn 1
+/detectors/Plane/outputCounts PlaneCounts.dat
+/detectors/Hemi/outputCounts HemiCounts.dat
+/detectors/Detector/outputCounts   DetCounts.dat

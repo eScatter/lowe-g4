@@ -1,0 +1,22 @@
+#===============================================================================
+# Perform a linescan over the pn-junction located at x=0.5micron
+#===============================================================================
+# Direction of the scan (x-axis)
+/scan/scanXdir 1.0 0.0 0.0 
+# Number of pixels in the scan
+/scan/scanNx 100
+# Length of the scan
+/scan/scanLx 200.0 nanometer
+# Position of the gun at the center of the scan line
+/scan/scanOrigin 0.0005 0.0 0.0001 mm
+# Silence the output
+/run/verbose 0
+# Perform the actual scan (increase number for better statistics)
+/scan/scanOn 50
+# Output turned back on
+/run/verbose 1
+# Generate the linescan ouput for each detector
+/scan/outputLinescan linescan_Plane.dat Plane 
+/scan/outputLinescan linescan_Plane2.dat Plane2
+/scan/outputLinescan linescan_Plane3.dat Plane3
+

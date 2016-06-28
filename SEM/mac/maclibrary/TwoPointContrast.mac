@@ -1,0 +1,25 @@
+#===============================================================================
+# Point test with good statistics
+# First we do a point at the p-side of the junction (x=0.4micron)
+# Next we do a point at the n-side of the junction (x=0.6micron)
+#===============================================================================
+/detectors/verbose 500
+
+/gps/pos/centre 0.0006 0.0 0.0001 mm
+# increase the number below for better statistics!
+/run/beamOn 10000
+/detectors/Plane/outputCounts  LPlane1_n_noms.counts
+/detectors/Plane2/outputCounts LPlane2_n_noms.counts
+/detectors/Plane3/outputCounts LPlane3_n_noms.counts
+/detectors/Plane/outputAngleHistogram  LPlane1_n_noms.angles 0.0 0.0 1.0 200
+/detectors/Plane2/outputAngleHistogram LPlane2_n_noms.angles 0.0 0.0 1.0 200
+/detectors/Plane3/outputAngleHistogram LPlane3_n_noms.angles 0.0 0.0 1.0 200
+/run/beamOn 10000
+/detectors/Plane/outputCounts  LPlane1_n_noms.counts
+/detectors/Plane2/outputCounts LPlane2_n_noms.counts
+/detectors/Plane3/outputCounts LPlane3_n_noms.counts
+/run/beamOn 10000
+/detectors/Plane/outputCounts  LPlane1_n_noms.counts
+/detectors/Plane2/outputCounts LPlane2_n_noms.counts
+/detectors/Plane3/outputCounts LPlane3_n_noms.counts
+

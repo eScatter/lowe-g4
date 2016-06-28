@@ -1,0 +1,38 @@
+#===============================================================================
+# Compute a whole image (takes a while...)
+#===============================================================================
+/detectors/verbose 0
+# Direction of the scan (x-axis)
+/scan/scanXdir 1.0 0.0 0.0 
+/scan/scanYdir 0.0 1.0 0.0 
+# Number of pixels in the scan
+/scan/scanNx 50
+/scan/scanNy 50
+# Length of the scan
+/scan/scanLx 200.0 nanometer
+/scan/scanLy 200.0 nanometer
+# Position of the gun at the center of the scan line
+/scan/scanOrigin 0.0005 0.0 -4.9999 mm
+# Silence the output
+/run/verbose 0
+# Perform the actual scan 
+/scan/imageOn 200
+# Output turned back on
+/run/verbose 1
+# Generate the ouput for each detector
+/scan/outputImage pn-junction_total1.pgm Plane 1
+/scan/outputImage pn-junction_total2.pgm Plane2 1
+/scan/outputImage pn-junction_total3.pgm Plane3 1
+/scan/outputImage pn-junction_total4.pgm TLD 1
+/scan/outputImage pn-junction_BSE1.pgm Plane 2
+/scan/outputImage pn-junction_BSE2.pgm Plane2 2
+/scan/outputImage pn-junction_BSE3.pgm Plane3 2
+/scan/outputImage pn-junction_BSE4.pgm TLD 2
+/scan/outputImage pn-junction_SE1.pgm Plane 3
+/scan/outputImage pn-junction_SE2.pgm Plane2 3
+/scan/outputImage pn-junction_SE3.pgm Plane3 3
+/scan/outputImage pn-junction_SE4.pgm TLD 3
+/scan/outputImageASCII pn-junction_1.asc Plane
+/scan/outputImageASCII pn-junction_2.asc Plane2
+/scan/outputImageASCII pn-junction_3.asc Plane3
+/scan/outputImageASCII pn-junction_4.asc TLD

@@ -1,0 +1,27 @@
+# Commands for setting up the particle source. 
+# The direction of the particles is fixed. 
+# The position distribution is Gaussian with a d_50 of 2.0 nm
+# This is the corrected version after the discovery that we used r_50 by accident before.
+# Theory:   sigma = d50/(2*sqrt(2*ln(2))) = 0.42466 * d50
+# Due to the Geant4 gps bug we have to multiply with sqrt(2) in order to get the required d50:
+# Theory + correction:   sigma = d50/(2*sqrt(ln(2))) =  0.60056 * d50   
+/gps/particle e-
+
+# Gaussian source just above sample 
+/gps/pos/type Beam
+/gps/pos/shape Circle
+/gps/pos/rot1 1.0 0.0 0.0
+/gps/pos/rot2 0.0 1.0 0.0
+/gps/pos/radius 0.0 mm
+/gps/ang/type planar
+/gps/direction 0.0 0.0  -1.0
+/gps/number 1
+/gps/energy 1.0 keV
+
+# For d50 = 2.0 nm  (see comments above):
+/gps/pos/sigma_r 1.201122409e-6 mm
+
+# NOTE:
+# The gun position is not set here, this is very dependent on the application and must be set
+# in the main .mac file
+

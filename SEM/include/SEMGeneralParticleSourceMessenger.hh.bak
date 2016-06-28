@@ -1,0 +1,58 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// MODULE:       SEMGeneralParticleSourceMessenger.hh
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+#ifndef SEMGeneralParticleSourceMessenger_h
+#define SEMGeneralParticleSourceMessenger_h 1
+
+#include "G4UImessenger.hh"
+#include "globals.hh"
+
+class G4ParticleTable;
+class G4UIcommand;
+class G4UIcmdWithoutParameter;
+class G4GeneralParticleSource;
+class G4SingleParticleSource;
+class G4UIcmdWithABool;
+class G4UIcmdWithAString;
+
+class SEMGeneralParticleSourceMessenger: public G4UImessenger
+{
+public:
+  SEMGeneralParticleSourceMessenger(G4GeneralParticleSource*);
+  ~SEMGeneralParticleSourceMessenger();
+
+  void SetNewValue(G4UIcommand *command, G4String newValues);
+  //    Identifies the command which has been invoked by the user, extracts the
+  //    parameters associated with that command (held in newValues), and uses
+  //    these values with the appropriate member function of G4GeneralParticleSource.
+  G4String GetCurrentValue(G4UIcommand *command);
+
+private:
+  void IonCommand(G4String newValues);
+
+private:
+  G4GeneralParticleSource *fGPS;
+  G4SingleParticleSource  *fParticleGun;
+  G4ParticleTable *particleTable;
+    
+private: //commands
+  G4UIcommand         *ionCmd;
+  G4UIcmdWithABool    *gpsgunCmd;
+  G4UIcmdWithAString  *hitsfileCmd;
+
+private: // for ion shooting
+  G4bool   fShootIon; 
+  G4int    fAtomicNumber;
+  G4int    fAtomicMass;
+  G4int    fIonCharge;
+  G4double fIonExciteEnergy;
+
+};
+
+#endif
+
