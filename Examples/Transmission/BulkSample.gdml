@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE gdml [
+<!ENTITY materials SYSTEM "SEMmaterials.xml">
+]>
+<gdml xmlns:gdml="http://cern.ch/2001/Schemas/GDML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/annemarie/geant4.10.0p02/geant4.10.00.02/environments/g4py/examples/gdml/GDMLSchema/gdml.xsd" >
+<!-- 
+
+  Definition of a bulk sample (default material BlackHole).
+  
+  The geometry consists of a cylindrical sample with a detector directly on top of it (but not touching).
+  The modules world volume is 0.05 mm larger than the sample in the z-direction (in both +z and -z direction).
+  The highest point of the sample is located at z=0, conforming to the defined standard.
+  
+  No detector is defined in this gdml. Therefore it can not be used as a standalone gdml file for use with the 
+  SEM code as this requires at least one detector. 
+
+-->
+<!--
+====================================================================================================================================
+===                                                                                                                              ===
+===  Definitions                                                                                                                 ===
+===                                                                                                                              ===
+====================================================================================================================================
+-->
+ <define>
+  <variable name="angle" value="360" />  <!-- Used for easy visualisation, use angle=180 for a nice crossection -->
+  <variable name="nm2mm" value="0.000001" /> <!-- conversion from nm to mm -->
+  <variable name="tSample" value="500.0" /> <!-- nm --> <!-- Thickness of sample -->
+  <variable name="rSample" value="1.0" /> <!-- mm --> <!-- Radius of sample -->
+  <variable name="tPlane" value="1.0" /> <!-- nm --> <!-- Thickness of detector -->
+
+  <position name="center"/>
+  <rotation name="identity"/>
+ </define>
+
+ <materials>
+&materials;
+ </materials>
+<!--
+====================================================================================================================================
+===                                                                                                                              ===
+===  Solids                                                                                                                      ===
+===                                                                                                                              ===
+====================================================================================================================================
+-->
+ <solids>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///  Sample                                                                                                                      ///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+
+  <polycone name="PlaneT" aunit="degree" lunit="mm" deltaphi="angle">
+   <zplane z="(-(tSample+2.0*tPlane)*nm2mm)" rmin="0.0" rmax="(rSample)" />
+   <zplane z="(-(tSample+tPlane)*nm2mm)" rmin="0.0" rmax="(rSample)" />
+  </polycone>
+  <polycone name="sampletube" aunit="degree" lunit="mm" deltaphi="angle">
+   <zplane z="(-tSample*nm2mm)" rmin="0.0" rmax="(rSample)" />
+   <zplane z="0.0" rmin="0.0" rmax="(rSample)" />
+  </polycone>
+  <!-- The detector is not in contact with the sample so that boundary steps are not recorded as hits -->
+  <polycone name="PlaneR" aunit="degree" lunit="mm" deltaphi="angle">
+   <zplane z="(tPlane*nm2mm)" rmin="0.0" rmax="(rSample)" />
+   <zplane z="(2.0*tPlane*nm2mm)" rmin="0.0" rmax="(rSample)" />
+  </polycone>
+  <!-- If angle != 360 the containing volume is moved so that when the user tries to trace particles an error message is generated -->
+  <polycone name="samplecontainersolid" aunit="degree" lunit="mm" deltaphi="angle">
+   <zplane z="(-((tSample+2.0*tPlane)*nm2mm)-0.05+(360.0-angle)*10000.0)" rmin="0.0" rmax="(rSample+0.1)" />
+   <zplane z="0.05+(360.0-angle)*10000.0" rmin="0.0" rmax="(rSample+0.1)" />
+  </polycone>
+
+ </solids>
+<!--
+====================================================================================================================================
+===                                                                                                                              ===
+===  Structure                                                                                                                   ===
+===                                                                                                                              ===
+====================================================================================================================================
+-->
+ <structure>
+  <volume name="LogPlaneR">
+   <auxiliary auxtype="color" auxvalue="0.0 0.9 0.0 0.0" />
+   <materialref ref="Galactic" />
+   <solidref ref="PlaneR" />
+  </volume>
+
+  <volume name="LogPlaneT">
+   <auxiliary auxtype="color" auxvalue="0.0 0.9 0.0 0.0" />
+   <materialref ref="Galactic" />
+   <solidref ref="PlaneT" />
+  </volume>
+
+  <volume name="LogSample">
+   <auxiliary auxtype="color" auxvalue="0.2 0.5 0.1 1.0" />
+   <materialref ref="BlackHole" /> <!-- The user is supposed to select the actual material in the mac file -->
+   <solidref ref="sampletube" />
+  </volume>
+
+  <volume name="samplecontainer">
+   <auxiliary auxtype="color" auxvalue="0.1 0.1 0.1 0.0" />
+   <materialref ref="Galactic" />
+   <solidref ref="samplecontainersolid" />
+   <physvol>
+     <volumeref ref="LogSample"/>
+     <positionref ref="center" />
+     <rotationref ref="identity" />
+   </physvol>
+   <physvol>
+     <volumeref ref="LogPlaneR"/>
+     <positionref ref="center" />
+     <rotationref ref="identity" />
+   </physvol>
+   <physvol>
+     <volumeref ref="LogPlaneT"/>
+     <positionref ref="center" />
+     <rotationref ref="identity" />
+   </physvol>
+  </volume>
+
+ </structure>
+
+ <setup name="Default" version="1.0" >
+  <world ref="samplecontainer" />
+ </setup>
+</gdml>
+

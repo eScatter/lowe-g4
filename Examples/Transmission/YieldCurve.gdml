@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE gdml [
+<!ENTITY materials SYSTEM "SEMmaterials.xml">
+]>
+<gdml xmlns:gdml="http://cern.ch/2001/Schemas/GDML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/annemarie/geant4.10.0p02/geant4.10.00.02/environments/g4py/examples/gdml/GDMLSchema/gdml.xsd" >
+
+ <define>
+  <variable name="WD" value="0.0" />         <!-- (mm)  Working distance -->
+  <variable name="TiltAngle" value="0.0" /> <!--- (deg) Tilt angle -->
+
+  <position name="PosSample" unit="mm" x="0" y="0" z="(-WD)" /> <!-- Top of sample is at z= -WD --> 
+  <rotation name="RotSample" unit="degree" x="0.0" y="(-1.0*TiltAngle)" z="0.0" /> 
+
+  <position name="center"/>
+  <rotation name="identity"/>
+ </define>
+
+  <materials>
+   &materials;
+  </materials>
+
+  <solids>
+   <box aunit="radian" lunit="mm" name="worldBox" x="100.0" y="100.0" z="500.0"/> 
+  </solids>
+
+  <structure>
+   <volume name="LogWorld">
+    <auxiliary auxtype="color" auxvalue="0.0 0.0 0.0 0.0" />
+    <materialref ref="Galactic" />
+    <solidref ref="worldBox" />
+    <physvol>
+     <file name="BulkSample.gdml"/>
+     <positionref ref="PosSample" />
+     <rotationref ref="RotSample" />
+    </physvol>
+   </volume>
+  </structure>
+
+<extension>
+  <!-- Define the detectors -->
+  <detectorlist>
+   <detector name="PlaneR" type="plane" volume="LogPlaneR" />
+   <detector name="PlaneT" type="plane" volume="LogPlaneT" />
+   <detector name="Sample" type="plane" volume="LogSample" />
+  </detectorlist>
+</extension>
+
+ <setup name="Default" version="1.0" >
+  <world ref="LogWorld" />
+ </setup>
+</gdml>

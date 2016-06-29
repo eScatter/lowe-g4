@@ -1,0 +1,24 @@
+#===============================================================================
+# Modify the particle gun energy; set it to the value of 'energy' as defined
+# in material.mac
+#===============================================================================
+/gps/energy {energy} eV
+
+#/detectors/Plane/energyWindow true
+#/detectors/Plane/maxEnergy {energy} eV
+## Putting a negative value means w.r.t. the maximum energy. So set maxEnergy first!
+#/detectors/Plane/minEnergy 245.0 eV
+
+# Use 1e6 PE as 1e7 results in memory problems, run this script 10 times instead
+# As a bonus we get some insight in the statistics
+/run/beamOn {NPE}
+/detectors/PlaneR/outputCounts {directory}/YieldR_{material}.dat
+/detectors/PlaneT/outputCounts {directory}/YieldT_{material}.dat
+#/detectors/PlaneR/outputEnergyPDF {directory}/EnergyPDF_{material}_{energy}.dat
+#/detectors/PlaneR/outputEnergyHistogram {directory}/EnergyHistogram_{material}_{energy}.dat
+/detectors/PlaneR/outputHits {directory}/EmissionR_{material}_{energy}eV.dat
+/detectors/PlaneT/outputHits {directory}/EmissionT_{material}_{energy}eV.dat
+/detectors/Sample/outputHits {directory}/EmissionSample_{material}_{energy}.dat
+##/detectors/PlaneR/PDFFilename {directory}/PlanePDF_{material}_{energy}.dat
+##/detectors/PlaneR/detHistFilename {directory}/Hist_{material}.dat
+

@@ -1,0 +1,17 @@
+# Commands for setting up the particle source. 
+# The direction of the particles is fixed in -z direction. 
+# The source is a point source (radius = 0).
+
+/gps/particle e-
+/gps/pos/type Point
+/gps/pos/shape Circle
+/gps/pos/rot1 1.0 0.0 0.0
+/gps/pos/rot2 0.0 1.0 0.0
+/gps/pos/radius 0.0 mm
+/gps/ang/type planar #iso 
+/gps/direction 0.0 0.0 -1.0 #-0.70710678118 0.0 -0.70710678118
+/gps/number 1
+
+# The position of the gun and the energy of the primaries must
+# be set in the main mac file.
+
