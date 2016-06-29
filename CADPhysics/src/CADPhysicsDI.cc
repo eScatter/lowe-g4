@@ -4,35 +4,35 @@
 // History:
 // 2006-07-10: changed folder for id-files to current working directory
 //             and removed several redundant warning messages in PostStepDoIt
-// 2006-07-27: fixed a bug in ReadEpsilonFile. If the df file does not exist, we still need to put 
-//             entries into innershells and innershelltable; otherwise we get the material couple 
+// 2006-07-27: fixed a bug in ReadEpsilonFile. If the df file does not exist, we still need to put
+//             entries into innershells and innershelltable; otherwise we get the material couple
 //             indices wrong.
 // 2006-08-08: improved implementation of the 'id' values exported to file
 // 2006-09-07: implementation of Auger electron generation through G4 atomic decay processes
 // 2006-12-08: now adding fermi energy also to Auger electron kinetic energies
 // 2007-01-05: ReadEpsilonFile only exits if df file does not exist AND material is not a gas
-// 2007-04-20: Extra check in GetMeanFreePath: forced kill only if energy<barrier and particle NOT 
+// 2007-04-20: Extra check in GetMeanFreePath: forced kill only if energy<barrier and particle NOT
 //             at a geom.boundary
 // 2007-05-02: Introduced some relativistic corrections to the total CS and angular distributions.
-// 2007-05-02: Implementation of a boolean 'rangecut' for killing below-range electrons and a 
+// 2007-05-02: Implementation of a boolean 'rangecut' for killing below-range electrons and a
 //             counter for e-h pairs
 // 2007-07-02: Energy check modified by local potential
 // 2007-07-18: Changed calculation of Lvalue in TabulateL to reduce numerical errors
 // 2007-07-18: Fixed bug in calculation of innershelldifflambdavalue in CalculateCDCS
-// 2007-07-18: Fixed bug: added extra energy check for 'vary omegaprime' in calculation of 'id' 
-//             values in CalculateCDCS; resolves buffer overrun runtime error with Microsoft 
+// 2007-07-18: Fixed bug: added extra energy check for 'vary omegaprime' in calculation of 'id'
+//             values in CalculateCDCS; resolves buffer overrun runtime error with Microsoft
 //             Visual C++ 8 compiler
 // 2007-07-20: Changed default location of low-energy data to make it version independent
 // 2007-08-01: Added user-controllable 'energycut' variable that sets minimum total electron energy
 //             wrt vacuum level
-// 2007-08-03: Moved definition of env.var. G4LEDATA to PhysicsList, since it is required by the 
+// 2007-08-03: Moved definition of env.var. G4LEDATA to PhysicsList, since it is required by the
 //             constructor of the TransitionManager
 // 2007-08-15: Set cutForPhotons to 250 eV to match validity of Penelope gamma processes
 // 2007-08-17: Minus sign error (introduced on 2007-07-18) in Lvalue fixed
-// 2007-11-26: Changed naming and implementation of 'id' to 'tmfp' to get more consistent 
+// 2007-11-26: Changed naming and implementation of 'id' to 'tmfp' to get more consistent
 //             terminology
-// 2012-03-08: Count SE's that are not followed as deposited energy (around line 1190) (EB) 
-// 2012-07-25: Added functionality so that user can have 'private' df files along with the global 
+// 2012-03-08: Count SE's that are not followed as deposited energy (around line 1190) (EB)
+// 2012-07-25: Added functionality so that user can have 'private' df files along with the global
 //             ones, which are supposedly 'validated'
 // 2013-06-06: Reformatted to width of 100 characters, some style changes
 
@@ -102,7 +102,7 @@ CADPhysicsDI::~CADPhysicsDI()
             a->pop_back();
             if ( b ) {delete b;}
          }
-         delete a; 
+         delete a;
       }
       delete difflambdatable;
    }
@@ -126,7 +126,7 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
 
    if(verboseLevel) G4cout << "CADPhysicsDI: Start BuildPhysicsTable" << G4endl;
 
-   // First clean up any existing data structures. This is necessary because this method may be 
+   // First clean up any existing data structures. This is necessary because this method may be
    // called more than once, in case the geometry has been modified between simulations.
    if( difflambdatable!=0 ) delete difflambdatable;
    difflambdatable = new std::vector<CADPhysicsDataTable*>;
@@ -170,22 +170,22 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
       if(verboseLevel) G4cout << "CADPhysicsDI: Start Material " << mname << "\n";
 
       // Get material properties from the GDML data.
-      // 
+      //
       // An overview:
       // Work function - energy between Fermi level and vacuum
-      // Fermi energy  - kinetic energy of the electron at the Fermi level (often zero for 
+      // Fermi energy  - kinetic energy of the electron at the Fermi level (often zero for
       //                 semiconductors and insulators)
-      // Affinity      - energy between bottom of the conduction band and vacuum. Used instead of 
+      // Affinity      - energy between bottom of the conduction band and vacuum. Used instead of
       //                 work function for insulators.
-      // Bandgap       - energy between bottom of the conduction band and top of valence band (for 
-      //                 semiconductors and insulators). Considered as a first 'inner shell' in 
+      // Bandgap       - energy between bottom of the conduction band and top of valence band (for
+      //                 semiconductors and insulators). Considered as a first 'inner shell' in
       //                 this model.
-      // Bandbending   - bending of energy bands near the (vacuum) interface; has an effect on the 
+      // Bandbending   - bending of energy bands near the (vacuum) interface; has an effect on the
       //                 potential barrier at vacuum.
-      // Deltaphi      - additional potential of the whole sample (e.g. due to conductive contact 
-      //                 with another material). In the current process, reading Deltaphi has no 
+      // Deltaphi      - additional potential of the whole sample (e.g. due to conductive contact
+      //                 with another material). In the current process, reading Deltaphi has no
       //                 other purpose than to print it to the screen.
-      // Barrier       - total potential barrier towards vacuum. It is not read from file but 
+      // Barrier       - total potential barrier towards vacuum. It is not read from file but
       //                 calculated here.
       G4int cond = 0;
       G4double work = 0.;
@@ -214,9 +214,9 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
                   break;
             }
          }
-         if(aMPT->ConstPropertyExists("WORKFUNCTION")) 
+         if(aMPT->ConstPropertyExists("WORKFUNCTION"))
             work = aMPT->GetConstProperty("WORKFUNCTION");
-         if(aMPT->ConstPropertyExists("FERMIENERGY")) 
+         if(aMPT->ConstPropertyExists("FERMIENERGY"))
             fermieff = aMPT->GetConstProperty("FERMIENERGY");
          if(aMPT->ConstPropertyExists("AFFINITY")) affinity = aMPT->GetConstProperty("AFFINITY");
          if(aMPT->ConstPropertyExists("BANDGAP")) bandgap = aMPT->GetConstProperty("BANDGAP");
@@ -276,13 +276,34 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
       difflambdatable->push_back(difflambdaformat);
       lambdatable->push_back(lambda);
    }
+
+   if(mname != "Galactic") {
+      std::ostringstream ost;
+      ost << "imfp_" << mname << ".dat";
+      G4String name = ost.str();
+      std::ofstream imfpfile;
+      imfpfile.open (name.c_str());
+      imfpfile << setprecision(6);
+      for(i=0; i<enrange.size(); i++) {
+         if (i==0) {
+            imfpfile << setw(12) << "Energy" << "\t" << setw(12) << "InelasticMFP" << G4endl;
+            imfpfile << setw(12) << "(eV)"   << "\t" << setw(12) << "(nm)"       << G4endl;
+         }
+         if ((*lambda)[i] != 0.0) {
+            imfpfile << scientific << setw(12) << enrange[i]/eV << "\t" << setw(12)
+                   << (1.0/(*lambda)[i])/nanometer << G4endl;
+         }
+      }
+      imfpfile.close();
+   }
+
    if(verboseLevel>1) PrintInfoDefinition();
 }
 
 void CADPhysicsDI::BuildEnrange()
 {
-   // Fill the vector enrange with TotBin+1 logarithmically spaced energy values from 
-   // LowestKineticEnergy to HighestKineticEnergy but double the number of entries between 1 and 
+   // Fill the vector enrange with TotBin+1 logarithmically spaced energy values from
+   // LowestKineticEnergy to HighestKineticEnergy but double the number of entries between 1 and
    // 100 eV, since this is where most of the interesting stuff happens!
    if(verboseLevel) G4cout << "CADPhysicsDI: Start BuildEnrange\n";
    enrange.clear();
@@ -320,36 +341,36 @@ void CADPhysicsDI::TabulateL()
 
       // Calculate the value of L, as used by Ashley in eqs. 17 and 19
       // Our implementation differs somewhat from Ashley's.
-      // To start with, we use different expressions for omegaprime below and above 50 eV, where 
-      // the lower omegaprime values roughly correspond to plasmon excitation and ionization from 
+      // To start with, we use different expressions for omegaprime below and above 50 eV, where
+      // the lower omegaprime values roughly correspond to plasmon excitation and ionization from
       // the valence band, while the higher values correspond to inner shell ionization. The values
-      // for omegaprime < 50 eV are stored in L, while those for higher energies are stored in 
+      // for omegaprime < 50 eV are stored in L, while those for higher energies are stored in
       // Lprim.
       // For L we use an expression that is not corrected for exchange; simply because
-      // this appears to generate more accurate results in practice compared to the 
+      // this appears to generate more accurate results in practice compared to the
       // exchange-corrected version.
-      // Physically, this can be justified by considering that in most cases a secondary electron 
-      // is not created immediately, but instead indirectly through the decay of a plasmon. The 
+      // Physically, this can be justified by considering that in most cases a secondary electron
+      // is not created immediately, but instead indirectly through the decay of a plasmon. The
       // expression is slightly different from the one used by Ashley (eq. 20) for two reasons:
-      // 1) For the higher limit of integration over omega we use 
+      // 1) For the higher limit of integration over omega we use
       //       omega+ = 1/2(Ekin - E_F + omegaprime)
-      //    instead of just 
-      //                1/2(Ekin + omegaprime), 
+      //    instead of just
+      //                1/2(Ekin + omegaprime),
       //    where E_F is the Fermi energy. Note that since the latter is material dependent,
-      //    this correction has to be done in CalculateCDCS instead of here, so an extra term is 
+      //    this correction has to be done in CalculateCDCS instead of here, so an extra term is
       //    added to L there.
       // 2) Our evaluation of L simply results in a slightly different expression than Ashley's...
 
       G4double s = sqrt(1.-2.*a);
       Lvalue = std::log(-1. + (2./a)*(1.+s));
       // For Lprim we use a very simple expression -log(a). Unlike Ashley's expression this results
-      // in a nonzero differential cross section also for omegaprime > Ekin/2 (or, equivalently, 
+      // in a nonzero differential cross section also for omegaprime > Ekin/2 (or, equivalently,
       // a>0.5).
       // Momentum is no longer conserved if just the primary and secondary electron are taken into
       // account; however, this expression more closely reflects the 'real' shape of individual atom
       // inner-shell ionization cross sections, which are nonzero all the way down to Ekin = Ebind.
       // N.B.: apparently the excess momentum of the primary electron is taken up by the the atom.
-      // N.B.2: this expression does not take into account the limitation omega<Ekin-E_F, but for 
+      // N.B.2: this expression does not take into account the limitation omega<Ekin-E_F, but for
       //        omegaprime > 50.eV this extra limitation has only a very minor influence.
       LPrimvalue = -log(a);
       L.push_back(Lvalue);
@@ -383,10 +404,10 @@ G4String CADPhysicsDI::GetdfFileForMaterial(const G4String &materialName)
 {
    G4String name="";
    std::ostringstream ost;
-   // Build the complete string identifying the 'df' file with the data set, including its 
+   // Build the complete string identifying the 'df' file with the data set, including its
    // relative path
 
-   // First look in the users directory, this means that the user's df file will overrule the 
+   // First look in the users directory, this means that the user's df file will overrule the
    // standard df file
    char *g4workdir=getenv("G4WORKDIR");
    if (g4workdir) {
@@ -405,7 +426,7 @@ G4String CADPhysicsDI::GetdfFileForMaterial(const G4String &materialName)
       }
       name = ost.str();
       // G4cerr << "Looking for file : (" << ost.str() << ")" << G4endl;
-   
+
       if ( !ExistsFileForMaterial(name)) {
          name="";
       }
@@ -413,13 +434,13 @@ G4String CADPhysicsDI::GetdfFileForMaterial(const G4String &materialName)
    return name;
 }
 
-void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName, 
-      const G4String& materialFormula, 
-      G4bool isgas, 
+void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
+      const G4String& materialFormula,
+      G4bool isgas,
       G4double barrier)
 {
    // Initialization
-   if(verboseLevel>1) 
+   if(verboseLevel>1)
       G4cout << "CADPhysicsDI: Start ReadEpsilonFile for material " << materialName << "\n";
    G4bool fillzeros = false;
    G4bool anyinnershell = false;
@@ -432,16 +453,16 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
       // ...then by formula...
       fullFilenameForMaterial=GetdfFileForMaterial(materialFormula);
       if(fullFilenameForMaterial == "") {
-         // N.B.: the rationale behind this is that materials with the same composition can still 
+         // N.B.: the rationale behind this is that materials with the same composition can still
          // have different energy loss functions.
-         // This is the case, e.g., for the different allotropies of carbon: Diamond, Graphite and 
+         // This is the case, e.g., for the different allotropies of carbon: Diamond, Graphite and
          // GlassyCarbon, that all have their own df files.
-         // If both fail, this might be a gas (for which this process is not supposed to do 
+         // If both fail, this might be a gas (for which this process is not supposed to do
          // anything anyway)
          fillzeros = true;
          if (!isgas) {
             // But if it's not, we have a problem and it is not possible to continue.
-            G4cout << "CADPhysicsDI: Error: input file for material " << materialName 
+            G4cout << "CADPhysicsDI: Error: input file for material " << materialName
                    << " not found, exiting now!" << G4endl;
             exit(1);
          }
@@ -449,7 +470,7 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
    }
 
    if (fillzeros) {
-      // We found no data file, so just fill the corresponding data structures with zeros as 
+      // We found no data file, so just fill the corresponding data structures with zeros as
       // place holders.
       readepsenergies.push_back(1.);
       readepsdata.push_back(0.);
@@ -459,7 +480,7 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
       // Read the file for specific material and store to array readimeps of E, Im(-1/eps)
 
       // Opening file for input
-      if (verboseLevel>0) 
+      if (verboseLevel>0)
          G4cout << "CADPhysicsDI: Using df file: " << fullFilenameForMaterial << G4endl;
       std::ifstream file(fullFilenameForMaterial);
       G4double a = 0.;
@@ -488,7 +509,7 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
 
          if (a == -1) {
          } else {
-            if (k%nColumns != 0) {   
+            if (k%nColumns != 0) {
                G4double e = a * eV;
                readepsenergies.push_back(e);
                k++;
@@ -502,7 +523,7 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
       file.close();
    }//if (fillzeros)
 
-   // Now try to input the 'transport mean free path' data generated by the elastic scattering 
+   // Now try to input the 'transport mean free path' data generated by the elastic scattering
    // process...   See CADPhysicsSingleScattering.cc for more info
    tmfpenergies.clear();
    tmfpdata.clear();
@@ -525,12 +546,12 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
          // The file terminates with the pattern: -1   -1
 
          if (a != -1) {
-            if (k%nColumns != 0) {   
+            if (k%nColumns != 0) {
                tmfpenergies.push_back(a);
                energy = a;
                k++;
             } else {
-               // Make the function monotonously increasing for energies above the vacuum 
+               // Make the function monotonously increasing for energies above the vacuum
                // potential barrier
                if (energy > barrier) {
                   if (a>tmfpmax) tmfpmax = a; else a = tmfpmax;
@@ -551,7 +572,7 @@ void CADPhysicsDI::ReadEpsilonFile(const G4String& materialName,
 
 void CADPhysicsDI::InterpolateEpsilon()
 {
-   // Interpolate read values of the energy loss function Im(-1/eps) to the energy values in 
+   // Interpolate read values of the energy loss function Im(-1/eps) to the energy values in
    // enrange and store to vector imeps
    if( imeps != 0 ) delete imeps;
    imeps = new G4DataVector;
@@ -569,9 +590,9 @@ void CADPhysicsDI::InterpolateEpsilon()
          //  are no new inner shell boundaries in the 'missing' part of the data set.
          tempimeps = readepsdata[j] * pow(readepsenergies[j]/e,4.);
       } else if (j>0) {
-         // Log-log interpolation of imeps between file data. This matches a power-law behavior of 
+         // Log-log interpolation of imeps between file data. This matches a power-law behavior of
          // the underlying data (which is reasonable at least at high energies - see above)
-         tempimeps = 
+         tempimeps =
             exp(log(readepsdata[j-1])+(log(e)-log(readepsenergies[j-1]))/
                 (log(readepsenergies[j]) -log(readepsenergies[j-1]))*
                 (log(readepsdata[j])-log(readepsdata[j-1])) );
@@ -580,9 +601,9 @@ void CADPhysicsDI::InterpolateEpsilon()
    }
 }
 
-void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat, 
-      G4DataVector* lambda, 
-      G4double fermiEnergy, 
+void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
+      G4DataVector* lambda,
+      G4double fermiEnergy,
       G4double barrier)
 {
    G4int i;// Counter over the energy values in enrange for the electron energy
@@ -605,7 +626,7 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
       G4double omegaprime = enrange[0];
       while(omegaprime<reduceden){// Loop over omega prime values
          G4double dcs = 0.;
-         // k is a measure for the ratio omega prime / Ekin, used for looking up the L and Lprim 
+         // k is a measure for the ratio omega prime / Ekin, used for looking up the L and Lprim
          // values
          G4int k = jj - ii + (TotBin-1)*8/5;
 
@@ -619,13 +640,13 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
          }
          if (dcs<0.) dcs = 0.;// For safety
 
-         if(j>0) {            
+         if(j>0) {
             // Calculation of the cumulative diff. cross section
             difflambdavalue += preconst * dcs * (enrange[j+1]-enrange[j-1])/2.;
-            // Next, sum up the cross sections for inner shell excitation (for omega prime above 
+            // Next, sum up the cross sections for inner shell excitation (for omega prime above
             // 1800 eV) separately
             // - for debugging purposes only
-            if(omegaprime>1800.*eV) 
+            if(omegaprime>1800.*eV)
                innershelldifflambdavalue += preconst * dcs * (enrange[j+1]-enrange[j-1])/2.;
          } else {
             // Note: special case for j=0
@@ -641,41 +662,41 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
       // The total inverse mfp equals the last value of the cumulative differential function:
       lambda->push_back(difflambdavalue);
       if (verboseLevel>2) {
-         if (i==0) { 
+         if (i==0) {
             G4cout << setw(12) << "Energy" << " " << setw(12) << "InelasticMFP" << G4endl;
             G4cout << setw(12) << "(eV)"   << " " << setw(12) << "(nm)"       << G4endl;
          }
          if (difflambdavalue != 0.0) {
-            G4cout << scientific << setw(12) << enrange[i]/eV << " " << setw(12) 
+            G4cout << scientific << setw(12) << enrange[i]/eV << " " << setw(12)
                    << (1.0/difflambdavalue)/nanometer << G4endl;
          }
-         //G4cout << enrange[i]/eV << "\t"  << difflambdavalue << "\t" 
+         //G4cout << enrange[i]/eV << "\t"  << difflambdavalue << "\t"
          //       << innershelldifflambdavalue << G4endl;
       }
       if (i>=(TotBin-1)/5 && i<(TotBin-1)*3/5) ii++; else ii+=2;
    }
 
    // Calculate and store the electron range as a function of energy.
-   // This information is used by the 'range cut' check, that stops the tracking of an electron if 
+   // This information is used by the 'range cut' check, that stops the tracking of an electron if
    // its distance to the nearest volume boundary is larger than a certain multiple of its range at
-   // that point. Given this purpose, we do not really need a precise value for the range, but 
+   // that point. Given this purpose, we do not really need a precise value for the range, but
    // rather a conservative (i.e. high) estimate suffices.
-   // To this end, for each energy value we calculate the range as the sum of the IMFP and a 
-   // weighted average of the remaining ranges at energy E - omegaprime after one inelastic event, 
-   // where the weights are the differential cross sections for omegaprime. The range is somewhat 
+   // To this end, for each energy value we calculate the range as the sum of the IMFP and a
+   // weighted average of the remaining ranges at energy E - omegaprime after one inelastic event,
+   // where the weights are the differential cross sections for omegaprime. The range is somewhat
    // overestimated because the real energy loss in an event is omega rather than omegaprime.
    // Furthermore, the resulting range function is adjusted so that it gets monotonically increasing
    // as a function of energy, to account for the large mean free paths of very low-energy electrons
    // in some materials.
    //
-   // On the other hand, by 'folding up' the trajectories of those low-energy electrons, elastic 
-   // scattering helps to reduce their effective range. This is taken into account by executing a 
+   // On the other hand, by 'folding up' the trajectories of those low-energy electrons, elastic
+   // scattering helps to reduce their effective range. This is taken into account by executing a
    // 'diffusion-like' correction rangevalue -> sqrt(2*tmfp*rangevalue) where 'tmfp' stands for the
-   //  transport mean free path, or the typical distance a particle travels before information on 
-   // its original direction is lost. This information is generated by the 
-   // CADPhysicsSingleScattering class, which puts it in the 'tmfp' files, in such a way that the 
+   //  transport mean free path, or the typical distance a particle travels before information on
+   // its original direction is lost. This information is generated by the
+   // CADPhysicsSingleScattering class, which puts it in the 'tmfp' files, in such a way that the
    // function is monotonically increasing with energy (for energies above the vacuum level).
-   // This way, the calculated 'tmfp' is always a conservative estimate of its 'effective' value 
+   // This way, the calculated 'tmfp' is always a conservative estimate of its 'effective' value
    // over the entire track of the particle.
    G4DataVector* rangeformat = new G4DataVector;
    G4DataVector* temprangeformat = new G4DataVector;
@@ -704,7 +725,7 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
                // Find the differential cross section value
                if (j>0) cdcsvalue = (*(*difflambdaformat)[i])[j] - (*(*difflambdaformat)[i])[j-1];
                else cdcsvalue = (*(*difflambdaformat)[i])[0];
-               // Find the index (intforrange) corresponding to the remaining energy after one 
+               // Find the index (intforrange) corresponding to the remaining energy after one
                // energy loss
                G4int intforrange = 0;
                for(int k=0;k<i;k++) {
@@ -714,7 +735,7 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
                   }
                }
                if(j>0) endiff = (enrange[j+1] - enrange[j-1])/2;
-               // Add the remaining range after one event, weighted by the corresponding 
+               // Add the remaining range after one event, weighted by the corresponding
                // differential cross section and normalized to the total cross section
                rangevalue += (*temprangeformat)[intforrange] * cdcsvalue / (*lambda)[i] ;
                j++;
@@ -722,14 +743,14 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
 
             temprangeformat->push_back(rangevalue);
 
-            // For the final result, correct the range for the elastic scattering 'folding' of the 
-            // trajectory                
+            // For the final result, correct the range for the elastic scattering 'folding' of the
+            // trajectory
 
             // Find the 'tmfp' value
             G4double tmfp = DBL_MAX;
             for(size_t ii=0;ii<tmfpsize;ii++) {
                if(tmfpenergies[ii]>enrange[i]) {
-                  if(ii==0) tmfp = tmfpdata[0]; else 
+                  if(ii==0) tmfp = tmfpdata[0]; else
                      tmfp = tmfpdata[ii-1] + (enrange[i]-tmfpenergies[ii-1])/
                         (tmfpenergies[ii]-tmfpenergies[ii-1])*(tmfpdata[ii]-tmfpdata[ii-1]);
                   break;
@@ -737,15 +758,15 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
             }
             // Perform the correction
             if(2.*tmfp<rangevalue) rangevalue = sqrt(2.*tmfp*rangevalue);
-            // And make sure the final result is monotonically increasing with energy (so that the 
+            // And make sure the final result is monotonically increasing with energy (so that the
             // electron can never have a smaller range than one with a lower energy)
             if(rangevalue>maxrangesofar) maxrangesofar = rangevalue;
             rangeformat->push_back(maxrangesofar);
          }
       }
-      // Note that although this calculation is performed over the entire energy range, it is and 
-      // should be applied only for primary energies up to 1 keV. At higher energies the distances 
-      // between the energy values become too large for this method to be completely accurate, and 
+      // Note that although this calculation is performed over the entire energy range, it is and
+      // should be applied only for primary energies up to 1 keV. At higher energies the distances
+      // between the energy values become too large for this method to be completely accurate, and
       // at the same time the additional gain in simulation speed would be rather limited.
    }
    delete temprangeformat;
@@ -762,7 +783,7 @@ G4double CADPhysicsDI::GetRange(G4int index, G4double e)
    if (j<=0) return 0.;
    if (j>TotBin-2) return DBL_MAX;
    // Rather than interpolating to the exact energy, we just take the value at the upper end of the
-   // current energy 'bin'. This is faster than interpolation and we only need an upper limit to 
+   // current energy 'bin'. This is faster than interpolation and we only need an upper limit to
    // the electron range rather than an exact value.
    localrange=(*temprangeformat)[j+1];
    return localrange;
@@ -787,7 +808,7 @@ G4VParticleChange* CADPhysicsDI::Phononloss( const G4Track& track,
    G4double kineticEnergy,
    G4double omegaprime)
 {
-   // Handle the discrete event in the case of sub-bandgap energy loss in semiconductors and 
+   // Handle the discrete event in the case of sub-bandgap energy loss in semiconductors and
    // insulators; energy loss due to LO phonon excitation is assumed.
    G4double finalKinEnergy = kineticEnergy-omegaprime;
    G4double theEnergyDeposit = omegaprime;
@@ -796,7 +817,7 @@ G4VParticleChange* CADPhysicsDI::Phononloss( const G4Track& track,
    G4StepPoint* steppoint = step.GetPostStepPoint();
    G4double pstepsafety = steppoint->GetSafety();
    G4double electronrange = GetRange(findex,finalKinEnergy);
-   if ( finalKinEnergy < fenergylimit || 
+   if ( finalKinEnergy < fenergylimit ||
         (finalKinEnergy < 1.*keV && pstepsafety > 5.*electronrange) ) {
       // Too low remaining energy, kill the particle.
       //theEnergyDeposit += finalKinEnergy - ffermienergy;
@@ -833,15 +854,15 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    }
 
    // Sample omegaprime
-   // The total cross section is multiplied with a random number. The value for omegaprime is 
-   // derived from the cumulative differential cross section table. 
+   // The total cross section is multiplied with a random number. The value for omegaprime is
+   // derived from the cumulative differential cross section table.
    G4double omegaprimecross = cross * G4UniformRand();
 
    // First find the index for the current kinetic energy
    G4int ii =  FindIntLogen(kineticEnergy);
    if (ii<16) {
       // At the very lowest energies (<0.02 eV) the differential cross section table is empty.
-      // This 'pathetic case' can happen only if the potential barrier 
+      // This 'pathetic case' can happen only if the potential barrier
       // (work function + fermi energy) of the material is around 0.02 eV or less.
       // N.B.: the cutoff value for ii depends on the value of TotBin!
       // Since we cannot determine omegaprime, return no particle change.
@@ -857,7 +878,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    G4DataVector* difflambda2 = 0;
    if (ii==TotBin-1) difflambda2 = (*difflambdaformat)[ii];
    else difflambda2 = (*difflambdaformat)[ii+1];
-   // and calculate the relative position in the energy bin so that we can interpolate the 
+   // and calculate the relative position in the energy bin so that we can interpolate the
    // differential cross sections for the exact kineticEnergy
    G4double enfrac = 0.;
    if (ii<TotBin-1) {
@@ -878,10 +899,10 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
 
    G4double omegaprime = enrange[0];
 
-   // Finally, calculate omegaprime by interpolation. It can happen that we've reached the end 
-   // difflambda1 (the differential cross sections for the lower end of the energy bin) before 
+   // Finally, calculate omegaprime by interpolation. It can happen that we've reached the end
+   // difflambda1 (the differential cross sections for the lower end of the energy bin) before
    // running out of omegaprimecross; i.e., i==dlsize-1 and still omegaprimecross > difflambdavalue.
-   // In that case, interpolate up to the end of the next energy bin or up to 
+   // In that case, interpolate up to the end of the next energy bin or up to
    // kineticEnergy - ffermienergy, whichever comes first.
    if (omegaprimecross > difflambdavalue) {
       G4double maxvalue = min(kineticEnergy - ffermienergy,enrange[i+1]);
@@ -889,7 +910,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
          (omegaprimecross - difflambdavalue) / (cross - difflambdavalue) * (maxvalue  - enrange[i]);
    }
    // In other cases, just interpolate between both ends of the current energy bin for omegaprime.
-   else if (i>0) { 
+   else if (i>0) {
       omegaprime = enrange[i-1] + (omegaprimecross - olddifflambdavalue)/
          (difflambdavalue - olddifflambdavalue) * (enrange[i]-enrange[i-1]);
    }
@@ -900,15 +921,15 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    G4int Z=0;
    G4int shellId = 0;
    if (omegaprime>100.*eV) {
-      // For large enough omegaprime, first see if the 'standard' Geant4 low energy utilities can 
-      // come up with a suitable inner shell to be ionized. This will be accepted only if the 
-      // binding energy is larger than 50 eV. The advantage of this method is that it knows about 
-      // the relative ionization cross sections of the different inner shells (at a certain 
-      // omegaprime energy) from which it can randomly select one. A disadvantage is that it knows 
+      // For large enough omegaprime, first see if the 'standard' Geant4 low energy utilities can
+      // come up with a suitable inner shell to be ionized. This will be accepted only if the
+      // binding energy is larger than 50 eV. The advantage of this method is that it knows about
+      // the relative ionization cross sections of the different inner shells (at a certain
+      // omegaprime energy) from which it can randomly select one. A disadvantage is that it knows
       // only about individual atoms, not about solid state electronic structure.
       // Hence the energy limits introduced here.
       G4double bindingEnergy = 0.;
-      // Create a margin to catch discrepancies in inner shell energies between G4 data and the 
+      // Create a margin to catch discrepancies in inner shell energies between G4 data and the
       // df files
       G4double margin = 10.*eV;
       const G4MaterialCutsCouple* couple = track.GetMaterialCutsCouple();
@@ -917,7 +938,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
       Z = crossSectionHandler->SelectRandomAtom(couple, omegaprime + margin);
       // Select a shell index from the atom
       G4int shell = crossSectionHandler->SelectRandomShell(Z, omegaprime + margin);
-      // N.B.: see CADPhysicsAtomicDeexcitation for the fine distinction between 'shellId's and 
+      // N.B.: see CADPhysicsAtomicDeexcitation for the fine distinction between 'shellId's and
       //       shell indices!
       // Get the actual shell given the index...
       const G4AtomicShell* atomicShell = (G4AtomicTransitionManager::Instance())->Shell(Z, shell);
@@ -930,7 +951,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    }
    // If we haven't found an inner shell (yet), check the data from the df file
    if(Ebind==0 && innershells[findex]) {
-      // This part is a bit less advanced. Simply find the largest inner shell ionization energy 
+      // This part is a bit less advanced. Simply find the largest inner shell ionization energy
       // in the list that is still smaller than omegaprime.
       G4DataVector* itsinnershells = (*innershelltable)[findex];
       size_t listsize = itsinnershells->size();
@@ -951,16 +972,16 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // Finished looking for inner shells.
 
    // Sample omega
-   // First set the limits. The maximum energy loss for the primary electron is such that its 
-   // kinetic energy after the event remains larger than omega-omegaprime, i.e. the *additional* 
-   // kinetic energy transfer to the secondary electron. omegamax equals the upper integration 
-   // limit of eq. 9 in Ashley, but corrected for the Fermi energy. The lower limit is set equal 
+   // First set the limits. The maximum energy loss for the primary electron is such that its
+   // kinetic energy after the event remains larger than omega-omegaprime, i.e. the *additional*
+   // kinetic energy transfer to the secondary electron. omegamax equals the upper integration
+   // limit of eq. 9 in Ashley, but corrected for the Fermi energy. The lower limit is set equal
    // to omegaprime (for inner shells) or to eq. 10 in Ashley (otherwise), where the latter
    // takes momentum conservation into account.
    G4double omegamax = 0.5*(kineticEnergy + omegaprime - ffermienergy);
    G4double omegamin = omegaprime;
    G4double Ebindprime = 0.;
-   // EK: 2013-06-12 Modified if statement 
+   // EK: 2013-06-12 Modified if statement
    // Previous version:
    //    if(Ebind < 50.*eV) {
    //      // No 'inner shell' ionization, use Ashley's limit
@@ -969,20 +990,20 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
       // Use Ashley's limit, as long as momentum conservation is possible
       omegamin = 0.5*(kineticEnergy+omegaprime-sqrt(kineticEnergy*(kineticEnergy-2.*omegaprime)));
       Ebindprime = omegaprime;
-   } else { 
+   } else {
       // See below for the meaning of Ebindprime
       Ebindprime = Ebind - ffermienergy;
       if(Ebindprime>omegaprime-1.*eV) Ebindprime=omegaprime-1.*eV;
          // Upper limit necessary because of the margin introduced above
-   } 
+   }
 
    G4double omega = 0;
    if(omegamin < omegamax && Ebindprime>0.) {
       // For nonzero binding energy, sample omega according to eq. 7 in Ashley,
       // using the lower and upper limits as defined above.
       // For inner-shell ionization (Ebind > 50 eV) we substitute the Fermi-energy corrected
-      // binding energy for omegaprime (so that the differential cross section becomes inversely 
-      // proportional to both the total energy transfer and the kinetic energy of the secondary 
+      // binding energy for omegaprime (so that the differential cross section becomes inversely
+      // proportional to both the total energy transfer and the kinetic energy of the secondary
       // electron).
       G4double fmin = 1/Ebindprime * log ((omegamin - Ebindprime)/omegamin);
       G4double fmax = 1/Ebindprime * log ((omegamax - Ebindprime)/omegamax);
@@ -992,9 +1013,9 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    } else {
       // In some cases (typically only occuring for Ebind<50 eV) we get omegamin > omegamax.
       // This is due to our fermi Energy correction in the definition of omegamax. Physically, this
-      // means that momentum cannot be conserved because the primary electron cannot have a final 
+      // means that momentum cannot be conserved because the primary electron cannot have a final
       // kinetic energy that is lower than the Fermi energy. In this (relatively rare) case we have
-      // to ignore momentum conservation and probe omega according to a 1/(omega)^2 distribution 
+      // to ignore momentum conservation and probe omega according to a 1/(omega)^2 distribution
       // with omegaprime and omegamax as lower and upper limits, respectively.
       omega = omegaprime/(1.-G4UniformRand() *(1.-omegaprime/omegamax));
    }
@@ -1003,45 +1024,45 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    G4double finalKinEnergy = kineticEnergy - omega;
 
    // Some special work needs to be done for 'zero' binding energy. We distinguish three cases:
-   // 1) Metals: excitation of a Fermi sea electron 
-   // 2) Semiconductors and insulators, and omegaprime larger than the bandgap: cross-bandgap 
+   // 1) Metals: excitation of a Fermi sea electron
+   // 2) Semiconductors and insulators, and omegaprime larger than the bandgap: cross-bandgap
    //    excitation
    // 3) Insulators: Phonon excitation, with energy loss but no creation of a secondary electron.
    // Now also for semiconductors!
    // Otherwise we simply have zero binding energy.
    if(Ebind==0) {
       if(fconductortype==0) {// Case 1. Metal, assume Fermi sea electron.
-         // The probability distribution for the initial energy of the SE is proportional to the 
-         // density of states of both the initial and the final states of the SE, 
-         //    p~sqrt(E')*sqrt(E'+omega) 
+         // The probability distribution for the initial energy of the SE is proportional to the
+         // density of states of both the initial and the final states of the SE,
+         //    p~sqrt(E')*sqrt(E'+omega)
          // where E' is the initial energy above the bottom of the conduction band and omega is the
          // transferred energy.
-         // By using this expression we assume a free-electron like behaviour of the electrons in 
+         // By using this expression we assume a free-electron like behaviour of the electrons in
          // the conduction band (i.e. perfectly quadratic shape of the conduction band).
-         // See, e.g., eq. 7 in Y.T. Yue et al., J.Phys.D 38 (2005) 1966-1977 
+         // See, e.g., eq. 7 in Y.T. Yue et al., J.Phys.D 38 (2005) 1966-1977
          // (where Delta E is used instead of omega).
          //
-         // A normalized cumulative distribution function for the dimensionless variable 
+         // A normalized cumulative distribution function for the dimensionless variable
          // y=E'/omega is stored in the vector Psecvalues.
          //
-         // First limit omega to more than 0.1 and less than 1000 times the Fermi energy. 
-         // If omega is outside the given range, then Ebind simply remains equal to zero, which 
-         // effectively means that the SE was assumed to have kinetic energy equal to the Fermi 
+         // First limit omega to more than 0.1 and less than 1000 times the Fermi energy.
+         // If omega is outside the given range, then Ebind simply remains equal to zero, which
+         // effectively means that the SE was assumed to have kinetic energy equal to the Fermi
          // energy. In both extremes this is a reasonable approximation:
-         // if omega<0.1*ffermienergy, the error is less than 10% of the final SE's kinetic energy 
+         // if omega<0.1*ffermienergy, the error is less than 10% of the final SE's kinetic energy
          // (and in a typical case the SE will have too low energy to escape anyway);
          // if omega>1000*ffermienergy, the error is less than 0.1% of the final SEs kinetic energy.
          if(omega>0.1*ffermienergy && omega<1000.*ffermienergy) {
-            // Next, determine the limiting values that the cumulative distribution function can 
+            // Next, determine the limiting values that the cumulative distribution function can
             // take. These are a function of the following dimensionless variable x:
             G4double x = ffermienergy/omega;
             G4int psecnr=0;
             G4double P0=0;// lower limit
             G4double P1=0;// upper limit
             if(x>1.) {
-               // omega is smaller than ffermienergy; the lower limit for E' is 
+               // omega is smaller than ffermienergy; the lower limit for E' is
                // ffermienergy - omega. Hence, y is at least x - 1.
-               // Here, we find the value of the cumulative distrubtion function that matches this 
+               // Here, we find the value of the cumulative distrubtion function that matches this
                // energy value.
                do {
                   if(Psecenergies[psecnr+1]>x-1.) {
@@ -1078,10 +1099,10 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
             do {
                if(Psecvalues[k+1]>P2) {
                   // log-log interpolation of the tabulated cumulative distribution function
-                  // E' = omega * y and finally the 'binding' energy is defined as 
-                  // ffermienergy - E', i.e. the distance of the SE's initial kinetic energy below 
+                  // E' = omega * y and finally the 'binding' energy is defined as
+                  // ffermienergy - E', i.e. the distance of the SE's initial kinetic energy below
                   // the Fermi level.
-                  Ebind = ffermienergy - omega*(Psecenergies[k] * 
+                  Ebind = ffermienergy - omega*(Psecenergies[k] *
                      exp(log(P2)-log(Psecvalues[k])/(log(Psecvalues[k+1])-log(Psecvalues[k]))
                      *(log(Psecenergies[k+1])-log(Psecenergies[k]))));
                   break;
@@ -1096,28 +1117,28 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
       }
    }// End if(Ebind==0)
 
-   // SE kinetic energy is equal to the transferred minus the binding energy -- but counting from 
+   // SE kinetic energy is equal to the transferred minus the binding energy -- but counting from
    // the Fermi level, so add the Fermi energy.
    G4double secondaryKineticEnergy = omega - Ebind + ffermienergy;
    G4double theEnergyDeposit = 0;
 
    // EB: Subtract fermi energy from material for bookkeeping
-   theEnergyDeposit += Ebind - ffermienergy; 
+   theEnergyDeposit += Ebind - ffermienergy;
 
    // Finally, sample the direction of the secondary electron
-   // This part of the code has been derived from (and is essentially still the same as) that of 
+   // This part of the code has been derived from (and is essentially still the same as) that of
    // G4LowEnergyIonisation.
 
-   // First transform to the shell potential - from both the (initial) primary kinetic energy and 
-   // the SE kinetic energy first subtract the Fermi energy, then add the binding energy *twice*. 
-   // The classical physical picture is that the electric potential near the given (inner shell) 
-   // orbit is twice the binding energy of that shell. The bound electron has a kinetic energy 
-   // equal to Ebind so that it's total energy is E_pot + E_kin = -2*Ebind + Ebind = -Ebind, as it 
+   // First transform to the shell potential - from both the (initial) primary kinetic energy and
+   // the SE kinetic energy first subtract the Fermi energy, then add the binding energy *twice*.
+   // The classical physical picture is that the electric potential near the given (inner shell)
+   // orbit is twice the binding energy of that shell. The bound electron has a kinetic energy
+   // equal to Ebind so that it's total energy is E_pot + E_kin = -2*Ebind + Ebind = -Ebind, as it
    // is expected to be.
    G4double deltaKinE = omega + Ebind;
    G4double primaryKinE = kineticEnergy - ffermienergy + 2.0*Ebind;
 
-   // After the transformation we assume that the collision behaves as if it occurs between free 
+   // After the transformation we assume that the collision behaves as if it occurs between free
    // electrons of which the SE had no net momentum prior to the collision.
 #ifdef CADPHYSICS_RELATIVISTIC
    // Sample the scattering angle neglecting atomic motion, RELATIVISTIC. This is default behavior.
@@ -1130,8 +1151,8 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    G4double dirz = cost;
 #else
    // Sample the scattering angle neglecting atomic motion, NON-RELATIVISTIC but slightly faster.
-   // Here we have implemented a nonrelativistic version for speed of simulation. This leads to 
-   // max. 1.5% relative error in the cosine of theta at 30 keV primary energy, while the absolute 
+   // Here we have implemented a nonrelativistic version for speed of simulation. This leads to
+   // max. 1.5% relative error in the cosine of theta at 30 keV primary energy, while the absolute
    // error is even less.
    G4double cost2 = deltaKinE / primaryKinE;
    if (cost2 > 1.) cost2 = 1.;
@@ -1193,10 +1214,10 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    if (generateSecondaries) {
       // X-ray photons and Auger electrons from atom deexcitation
       if (shellId>0 && Z>5) {
-         // Data are available only for Z>5 and shellId>0 only if a suitable inner shell was 
+         // Data are available only for Z>5 and shellId>0 only if a suitable inner shell was
          // found previously
          secondaryVector = deexcitation.GenerateParticles(Z, shellId);
-      } else { 
+      } else {
         // If no deexcitation, start with an empty vector
         secondaryVector = new  std::vector<G4DynamicParticle*>;
       }
@@ -1221,42 +1242,42 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
                type = aSecondary->GetDefinition();
                if (type==G4Electron::Electron()) {
                   if (i<nSecondaries-1) {
-                     // Add the Fermi energy to the kinetic energies of all Auger electrons 
+                     // Add the Fermi energy to the kinetic energies of all Auger electrons
                      // (i.e. all electrons in the vector but the last)
                      e += ffermienergy;
                      aSecondary->SetKineticEnergy(e);
                      theEnergyDeposit -= e;
-                        // Taken relative to the Fermi level. The particle contributes a 
+                        // Taken relative to the Fermi level. The particle contributes a
                   }
-                  // Get the range for the given kinetic energy (which is different for each 
+                  // Get the range for the given kinetic energy (which is different for each
                   // particle)
                   G4double electronrange = GetRange(findex,e);
                   // Energy checks.
                   // The electron is accepted as a new particle if either
                   // - its kinetic energy is larger than 1 keV
-                  // - or the local safety is less than five times its range (so that it has a 
+                  // - or the local safety is less than five times its range (so that it has a
                   //   realistic chance of reaching a surface)
                   // - or rangecut is false
                   // - or the material is an insulator
-                  // and its kinetic energy equals at least the vacuum boundary level plus 
+                  // and its kinetic energy equals at least the vacuum boundary level plus
                   // the user-determined cut energy (if any).
                   G4bool passenergy = false;
                   if (!passenergy) {
                      passenergy = (e>1.*keV);
                      if (!passenergy) {
-                        passenergy = (e>fenergylimit && 
+                        passenergy = (e>fenergylimit &&
                                       (!rangecut || pstepsafety < 5.*electronrange));
                      }
                   }
                   if (passenergy) {
                      //Only check for zero energy, to avoid G4VParticleChange errors
                      //theEnergyDeposit -= e;
-                     //   // Taken relative to the Fermi level. The particle contributes a 
-                     //   // *negative* energy deposit because it takes a share of the binding 
+                     //   // Taken relative to the Fermi level. The particle contributes a
+                     //   // *negative* energy deposit because it takes a share of the binding
                      //   // energy that is not deposited into the material.
                      totalNumber++;
                   } else {
-                     // The particle did not pass the filter, so delete it and remove its pointer 
+                     // The particle did not pass the filter, so delete it and remove its pointer
                      // from the vector.
                      delete aSecondary;
                      (*secondaryVector)[i] = 0;
@@ -1264,10 +1285,10 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
                   }
                } else if (type == G4Gamma::Gamma() && e > cutForPhotons && generateXrays) {
                   // Accept an X-ray photon...
-                  // if the user switch is on and its energy is larger than cutForPhotons. 
-                  // This number is fixed to 250 eV since this is the lower limit that Geant4's 
+                  // if the user switch is on and its energy is larger than cutForPhotons.
+                  // This number is fixed to 250 eV since this is the lower limit that Geant4's
                   // LowEnergy gamma processes are still valid for.
-                  theEnergyDeposit -= e; 
+                  theEnergyDeposit -= e;
                   totalNumber++;
                } else {
                   // Delete the particle in all other cases
@@ -1278,8 +1299,8 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
          }
       }
    } else {
-      // EB: If we are not creating secondaries the energy is considered to be deposited here 
-      theEnergyDeposit += secondaryKineticEnergy; 
+      // EB: If we are not creating secondaries the energy is considered to be deposited here
+      theEnergyDeposit += secondaryKineticEnergy;
    }
 
    // Register the number of secondary particles that remain after filtering
@@ -1303,8 +1324,8 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
 
    // Filter for the primary electron energy (similar to the SE filter above)
    G4double electronrange = GetRange(findex,finalKinEnergy);
-   if ( finalKinEnergy > fenergylimit && 
-      (!rangecut || pstepsafety < 5.*electronrange || 
+   if ( finalKinEnergy > fenergylimit &&
+      (!rangecut || pstepsafety < 5.*electronrange ||
       finalKinEnergy > 1.*keV) ) {
       // The particle survives
       // Update the primary electron direction assuming conservation of momentum
@@ -1319,24 +1340,24 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
       aParticleChange.ProposeTrackStatus(fStopAndKill);
    }
 
-   // EB: Commented out the following 4 lines. The deposit must be allowed to be negative in order 
+   // EB: Commented out the following 4 lines. The deposit must be allowed to be negative in order
    //     to make the balance correct
    // if(theEnergyDeposit < 0.) {// Sanity check. We can only deposit net energy, not extract it.
    //    theEnergyDeposit = 0.0;
    // }
-   // G4cout << "---------------------------------------------------------------------------" 
+   // G4cout << "---------------------------------------------------------------------------"
    //        << G4endl;
-   // G4cout << setprecision(9) << "DI: Start Kinetic energy =          " << kineticEnergy/eV 
-   //        << G4endl; 
-   // G4cout << setprecision(9) << "DI: Final Kinetic energy =          " << finalKinEnergy/eV 
-   //        << G4endl; 
-   // G4cout << setprecision(9) << "    Kinetic energy of secondaries = " << SE_energy/eV 
+   // G4cout << setprecision(9) << "DI: Start Kinetic energy =          " << kineticEnergy/eV
    //        << G4endl;
-   // G4cout << setprecision(9) << "    Energy deposit =                " << theEnergyDeposit/eV 
+   // G4cout << setprecision(9) << "DI: Final Kinetic energy =          " << finalKinEnergy/eV
    //        << G4endl;
-   // G4cout << setprecision(9) << "    Total =                         " 
+   // G4cout << setprecision(9) << "    Kinetic energy of secondaries = " << SE_energy/eV
+   //        << G4endl;
+   // G4cout << setprecision(9) << "    Energy deposit =                " << theEnergyDeposit/eV
+   //        << G4endl;
+   // G4cout << setprecision(9) << "    Total =                         "
    //        << (finalKinEnergy+SE_energy+theEnergyDeposit)/eV << G4endl ;
-   // G4cout << "---------------------------------------------------------------------------" 
+   // G4cout << "---------------------------------------------------------------------------"
    //        << G4endl;
    aParticleChange.ProposeLocalEnergyDeposit(theEnergyDeposit);
    aParticleChange.ProposeEnergy(finalKinEnergy);
@@ -1344,7 +1365,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    return G4VContinuousDiscreteProcess::PostStepDoIt(track, step);
 }
 
-G4double CADPhysicsDI::GetMeanFreePath( const G4Track& aTrack, 
+G4double CADPhysicsDI::GetMeanFreePath( const G4Track& aTrack,
    G4double, G4ForceCondition* condition)
 {
    // Initialization
@@ -1360,7 +1381,7 @@ G4double CADPhysicsDI::GetMeanFreePath( const G4Track& aTrack,
       *condition = Forced;
       killthisone = true;
       return DBL_MIN;
-   } 
+   }
 
    // Shortcut: for unchanged energy and material index, return the previous value
    if(findex == index)
@@ -1377,7 +1398,7 @@ G4double CADPhysicsDI::GetMeanFreePath( const G4Track& aTrack,
 
    // Check the physical state of the material. This process is not active in gases.
    const G4Material* material = couple->GetMaterial();
-   if (material->GetState()==kStateGas) 
+   if (material->GetState()==kStateGas)
    {
       flambda = DBL_MAX;
       return flambda;
@@ -1410,17 +1431,17 @@ G4double CADPhysicsDI::GetMeanFreePath( const G4Track& aTrack,
          *((*lambda)[j+1]-(*lambda)[j]);// Linear interpolation of the inverse MFP
    }
 
-   G4double mfp = DBL_MAX; 
+   G4double mfp = DBL_MAX;
    if (cross>0.) {// The MFP is the inverse of the inverse MFP
       mfp = 1./cross;
    }
    flambda = mfp;
    if (mfp==0.) {
-      G4cout << findex << "\t" << kineticEnergy << "\t" << j << "\t" 
+      G4cout << findex << "\t" << kineticEnergy << "\t" << j << "\t"
              << cross << "\t" << flambda << "\t" << mfp << G4endl;
       abort();
    }
-   return mfp;   
+   return mfp;
 }
 
 G4int CADPhysicsDI::FindIntLogen(G4double kineticEnergy)
