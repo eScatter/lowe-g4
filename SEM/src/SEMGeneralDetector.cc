@@ -19,7 +19,7 @@
 #include "G4RunManager.hh"
 #include "SEMPrimaryGeneratorAction.hh"
 #include "SEMDetectorConstruction.hh"
-#include "//usr/include/x86_64-linux-gnu/sys/stat.h"
+#include <sys/stat.h>
 
 
 using namespace std;
