@@ -275,26 +275,26 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
       CalculateCDCS(difflambdaformat, lambda, fermieff, barrier);
       difflambdatable->push_back(difflambdaformat);
       lambdatable->push_back(lambda);
-   }
 
-   if(mname != "Galactic") {
-      std::ostringstream ost;
-      ost << "imfp_" << mname << ".dat";
-      G4String name = ost.str();
-      std::ofstream imfpfile;
-      imfpfile.open (name.c_str());
-      imfpfile << setprecision(6);
-      for(i=0; i<enrange.size(); i++) {
-         if (i==0) {
-            imfpfile << setw(12) << "Energy" << "\t" << setw(12) << "InelasticMFP" << G4endl;
-            imfpfile << setw(12) << "(eV)"   << "\t" << setw(12) << "(nm)"       << G4endl;
+      if(mname != "Galactic") {
+         std::ostringstream ost;
+         ost << "imfp_" << mname << ".dat";
+         G4String name = ost.str();
+         std::ofstream imfpfile;
+         imfpfile.open (name.c_str());
+         imfpfile << setprecision(6);
+         for(i=0; i<enrange.size(); i++) {
+            if (i==0) {
+               imfpfile << setw(12) << "Energy" << "\t" << setw(12) << "InelasticMFP" << G4endl;
+               imfpfile << setw(12) << "(eV)"   << "\t" << setw(12) << "(nm)"       << G4endl;
+            }
+            if ((*lambda)[i] != 0.0) {
+               imfpfile << scientific << setw(12) << enrange[i]/eV << "\t" << setw(12)
+                      << (1.0/(*lambda)[i])/nanometer << G4endl;
+            }
          }
-         if ((*lambda)[i] != 0.0) {
-            imfpfile << scientific << setw(12) << enrange[i]/eV << "\t" << setw(12)
-                   << (1.0/(*lambda)[i])/nanometer << G4endl;
-         }
+         imfpfile.close();
       }
-      imfpfile.close();
    }
 
    if(verboseLevel>1) PrintInfoDefinition();
