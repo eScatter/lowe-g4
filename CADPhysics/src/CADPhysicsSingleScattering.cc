@@ -65,7 +65,7 @@ dodiffusionstep(true),
 workforgases(true),
 numangles(101),
 numMottangles(96)
-{ 
+{
    SetVerboseLevel(1);
    messenger = new CADPhysicsSSMessenger(this);
    singlestep = false;
@@ -109,7 +109,7 @@ CADPhysicsSingleScattering::~CADPhysicsSingleScattering()
             }
             delete b;
          }
-         delete a; 
+         delete a;
       }
       delete theDInvMFPTable;
    }
@@ -205,7 +205,7 @@ void CADPhysicsSingleScattering::BuildPhysicsTable(
       fphononloss = 0.00108*eV;// Average energy loss in case of an acoustic phonon scattering event. Default is the value for silicon.
       if (aMPT) {
          // Check if we have sufficient input parameters for an explicit description of the acoustic phonon scattering.
-         // The approach here is: we treat the material as a semiconductor simply if we have enough information to do so - 
+         // The approach here is: we treat the material as a semiconductor simply if we have enough information to do so -
          // regardless of whether the material was actually defined to be a semiconductor (or insulator).
          // The required parameters are, as stated above, the sound velocity, deformation potential, and lattice constant.
          if(aMPT->ConstPropertyExists("SOUNDVELOCITY")) {
@@ -257,7 +257,7 @@ void CADPhysicsSingleScattering::BuildPhysicsTable(
          // In the case of gases, it does not make sense to implement an 'acoustic phonon' type of scattering.
          // Instead, we just extrapolate the Mott scattering cross sections to zero energy.
          fermienergy = 0.;
-         if(verboseLevel>1 ) G4cout << "CADPhysicsSingleScattering: " << material->GetName() << " is treated as a gas, " << 
+         if(verboseLevel>1 ) G4cout << "CADPhysicsSingleScattering: " << material->GetName() << " is treated as a gas, " <<
             "with Mott cross sections starting from zero energy." << G4endl;
       } else if(verboseLevel>1) {
          if (issemi)
@@ -316,7 +316,7 @@ void CADPhysicsSingleScattering::BuildRanges()// Fill the enrange and anglerange
    const G4double piover180 = pi / 180.;
    G4double tempanglerange[101] = {// These angles match the tabulated values for the Mott differential cross sections, with five additions
       0.05, 0.3, 0.55, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5,
-      11., 13., 15., 17., 19., 21., 23., 25., 27., 29., 31., 33., 35., 37., 39., 
+      11., 13., 15., 17., 19., 21., 23., 25., 27., 29., 31., 33., 35., 37., 39.,
       41., 43., 45., 47., 49., 51., 53., 55., 57., 59., 61., 63., 65., 67., 69.,
       71., 73., 75., 77., 79., 81., 83., 85., 87., 89., 91., 93., 95., 97., 99.,
       101., 103., 105., 107., 109., 111., 113., 115., 117., 119.,
@@ -388,7 +388,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
 
          // Higher-energy inverse mean free path, cf eq (3b) in Fitting et al.
          // assuming a parabolic energy band and m*=m_e
-         G4double highenInvMFP = preconst2 * screening * screening / en * 
+         G4double highenInvMFP = preconst2 * screening * screening / en *
             ( - en/(screening * (1. + en/screening)) + log(1. + en/screening));
          G4double norm = - en / (en + screening) + log ( 1. + en/screening);// Normalization factor for the angular distribution
          // of the inverse mean free path at higher energies
@@ -398,7 +398,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
 
          // Calculate cumulative differential inverse mean free path for angle
          G4double lastvalue = 0.;
-         G4double cumSigmaThetaInvMFP = 0.; 
+         G4double cumSigmaThetaInvMFP = 0.;
          for(size_t jj=0;jj<numangles;jj++)// Loop over all predefined angles
          {
             G4double fac = 2. * screening / ( 2. * screening + en - en * anglerange[jj]);
@@ -424,8 +424,8 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
       std::ostringstream ost;
                 char *path=getenv("CADPHYSICS_BASE");
                 if (!path) {
-         if(integralZ<10) ost << "../CADPhysics/mott/0" << integralZ << ".dat";
-                   else ost << "../CADPhysics/mott/" << integralZ << ".dat";
+         if(integralZ<10) ost << "/usr/local/share/CAD/mott/0" << integralZ << ".dat";
+                   else ost << "/usr/local/share/CAD/mott/" << integralZ << ".dat";
                 } else {
          if(integralZ<10) ost << path << "/mott/0" << integralZ << ".dat";
                    else ost << path << "/mott/" << integralZ << ".dat";
@@ -549,7 +549,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
    // These values are used by the DI process to determine the effective distance electrons can travel inside the material
    // and hence decide if a certain electron has any chance to leave the current material, and therefore whether or not
    // it needs to be created or killed.
-   // Also, the transport mean free path is used in the DoDiffusionStep method to determine the position and momentum distribution at 
+   // Also, the transport mean free path is used in the DoDiffusionStep method to determine the position and momentum distribution at
    // the end of a step.
 
    std::ostringstream ost;
@@ -617,8 +617,8 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforMetal(const G4Mat
       std::ostringstream ost;
                 char *path=getenv("CADPHYSICS_BASE");
                 if (!path) {
-         if(integralZ<10) ost << "../CADPhysics/mott/0" << integralZ << ".dat";
-                   else ost << "../CADPhysics/mott/" << integralZ << ".dat";
+         if(integralZ<10) ost << "/usr/local/share/CAD/mott/0" << integralZ << ".dat";
+                   else ost << "/usr/local/share/CAD/mott/" << integralZ << ".dat";
                 } else {
          if(integralZ<10) ost << path << "/mott/0" << integralZ << ".dat";
                    else ost << path << "/mott/" << integralZ << ".dat";
@@ -679,10 +679,10 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforMetal(const G4Mat
       for (j=0; j<fermibin; j++) {
          G4DataVector* DInvMFPforEnergy = new G4DataVector;
          G4double lastvalue = 0;
-         G4double cumSigmaThetaInvMFP = 0; 
+         G4double cumSigmaThetaInvMFP = 0;
          for(size_t jj=0;jj<numangles;jj++)// Loop over all angles in the range
          {
-            G4double cumDInvMFP = 0.5 * phononInvMFP * (1.-anglerange[jj]);// Isotropic angular distribution 
+            G4double cumDInvMFP = 0.5 * phononInvMFP * (1.-anglerange[jj]);// Isotropic angular distribution
             // (as in the low-energy limit of eq. (13a) in Schreiber et al.)
             DInvMFPforEnergy->push_back(cumDInvMFP);
             if (jj>0) {
@@ -732,7 +732,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforMetal(const G4Mat
          G4double preconst3 = enrange[j] + screening;
          G4double InvMFP = phononInvMFP * preconst3;
          G4double lastvalue = 0.;
-         G4double cumSigmaThetaInvMFP = 0.; 
+         G4double cumSigmaThetaInvMFP = 0.;
          G4double cumInvMFP = 0.;
          G4double mottInvMFP = 0.;
          G4double phononCumInvMFP = 0.;
@@ -890,7 +890,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforMetal(const G4Mat
    // These values are used by the DI process to determine the effective distance electrons can travel inside the material
    // and hence decide if a certain electron has any chance to leave the current material, and therefore whether or not
    // it needs to be created or killed.
-   // Also, the transport mean free path is used in the DoDiffusionStep method to determine the position and momentum distribution at 
+   // Also, the transport mean free path is used in the DoDiffusionStep method to determine the position and momentum distribution at
    // the end of a step.
 
    std::ostringstream ost;
@@ -910,7 +910,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforMetal(const G4Mat
    }
    tmfpfile << "-1\t-1\n";
    tmfpfile.close();
-   theTMFPTable->push_back(TMFPforMat); 
+   theTMFPTable->push_back(TMFPforMat);
 
    return DInvMFPforMat;
 }
@@ -932,7 +932,7 @@ G4double CADPhysicsSingleScattering::ComputeRutherfordCrossSectionPerAtom(
 	//G4double R = 0.885 * a0 * pow(Z,-0.333333333333333333);
         // EB: Corrected to match NIST c.s. data 2013-06-13
         //     It is not clear (yet) why this factor two is missing but I found that
-        //     for Al,Si and Au the NIST data is matched at 200keV and 50keV. 
+        //     for Al,Si and Au the NIST data is matched at 200keV and 50keV.
         //     Also the BSE yield curve of Si shows a discontinuity around 30keV if this
         //     factor 2 correction is not done.
 	G4double R = 2.0*0.885 * a0 * pow(Z,-0.333333333333333333);
@@ -940,11 +940,11 @@ G4double CADPhysicsSingleScattering::ComputeRutherfordCrossSectionPerAtom(
 	G4double fx = Z*lambda*lambda/(lambda*lambda+4.0*pi*pi*angle*angle*R*R);
     G4double factor = lambda*lambda*lambda*lambda/(64.0*pi*pi*pi*pi*a0*a0);
 	G4double enfactor = 1.0 + kinEnergy/electron_mass_c2;
-    
+
 	// 2012-07-26, relativistic correction for theta0
 	//G4double theta0 = lambda * pow(Z,0.333333333333333333)/(2.0*pi*a0);
 
-    G4double stheta2 = sin(angle/2.0); 
+    G4double stheta2 = sin(angle/2.0);
 
 	G4double result = factor*(Z-fx)*(Z-fx)*enfactor*enfactor/(stheta2*stheta2*stheta2*stheta2);
 
@@ -954,7 +954,7 @@ G4double CADPhysicsSingleScattering::ComputeRutherfordCrossSectionPerAtom(
 G4double CADPhysicsSingleScattering::ComputeBrowningCrossSectionPerAtom(
    G4double kinEnergy,
    G4double Z)
-   // Method used to calculate the scattering cross section for energies above 30 keV, where the 
+   // Method used to calculate the scattering cross section for energies above 30 keV, where the
    // Mott cross sections are not available.
    // Ref.: R. Browning et al, J.Appl.Phys. 76 (4), 2016 (1994).
 {
@@ -997,7 +997,7 @@ G4VParticleChange* CADPhysicsSingleScattering::AlongStepDoIt(
 G4VParticleChange* CADPhysicsSingleScattering::PostStepDoIt(
    const G4Track& track,
    const G4Step& step)
-{  
+{
    aParticleChange.Initialize(track);
    if (donothing) {
       return pParticleChange;// Do nothing, returns pointer to aParticleChange
@@ -1016,7 +1016,7 @@ G4VParticleChange* CADPhysicsSingleScattering::PostStepDoIt(
 G4VParticleChange* CADPhysicsSingleScattering::DoSingleStep(
    const G4Track& track,
    const G4Step& step)
-{  
+{
    // Some initialization
    aParticleChange.Initialize(track);
    finalT = track.GetKineticEnergy();
@@ -1058,7 +1058,7 @@ G4VParticleChange* CADPhysicsSingleScattering::DoSingleStep(
          xx = (1.-enfrac)*(*PSDInvMFPforEnergy1)[jj] + enfrac* (*PSDInvMFPforEnergy2)[jj];
          if (xx>xforangle)
          {
-            // The correct angle 'bin' has been found; interpolate between stored values to find cosTheta             
+            // The correct angle 'bin' has been found; interpolate between stored values to find cosTheta
             if(jj>0) cosTheta = anglerange[jj-1] + (anglerange[jj]-anglerange[jj-1])*(xforangle-oldxx)/
                (xx-oldxx);
             else cosTheta = 1. + (anglerange[jj]-1.)*xforangle/xx;
@@ -1077,7 +1077,7 @@ G4VParticleChange* CADPhysicsSingleScattering::DoSingleStep(
       G4double logenfrac = 0.;
       CADPhysicsDataCube* DInvMFPforMat = (*theDInvMFPTable)[i];
 
-      // Select the energy value for selecting the element and scattering angle. Effectively, this gives a (log-log) interpolation of 
+      // Select the energy value for selecting the element and scattering angle. Effectively, this gives a (log-log) interpolation of
       // all scattering probabilities between subsequent tabulated energy values.
       G4int binforcs = 0;
       if(78==energybin) binforcs = 77; else {
@@ -1085,10 +1085,10 @@ G4VParticleChange* CADPhysicsSingleScattering::DoSingleStep(
          if (G4UniformRand()<logenfrac) binforcs = energybin; else binforcs = energybin - 1;
       }
 
-      // Select the element      
+      // Select the element
       G4double x = G4UniformRand()*(*InvMFPforMat)[binforcs];
       G4double xperel=0.;
-      do {       
+      do {
          PSDInvMFPforEl = (*DInvMFPforMat)[ii];
          PSDInvMFPforEnergy1 = (*PSDInvMFPforEl)[binforcs];
          xperel = (*PSDInvMFPforEnergy1)[numangles-1];// Inverse MFP for the current element. EK 2013-01-21, corrected -1 in bin number
@@ -1132,12 +1132,12 @@ G4VParticleChange* CADPhysicsSingleScattering::DoSingleStep(
       // Calculate the "elastic" energy loss due to atom recoil
       // N.B.: this energy loss is extremely small compared to the kinetic energy - the place where you are most likely to notice it
       // is in the elastic backscatter peak, for which no other loss processes are present.
-      G4double effA  = elm->GetA(); 
+      G4double effA  = elm->GetA();
       energyloss = enlossconst * (1.-cosTheta) * finalT / effA;
       finalT -= energyloss;
       aParticleChange.ProposeEnergy(finalT);
       aParticleChange.ProposeLocalEnergyDeposit(energyloss);
-   }   
+   }
 
    // Randomly select the phi angle from a uniform distribution, and determine the new momentum vector
    G4double Phi     = twopi * G4UniformRand();
@@ -1158,14 +1158,14 @@ G4double CADPhysicsSingleScattering::DoMultiStep(
    const G4Track& track,
    G4double othersteplength,
    G4double safety)
-   // Multistep version of the PostStepDoIt method. It may be combined with the 
+   // Multistep version of the PostStepDoIt method. It may be combined with the
    // PostStepDoIt methods of other processes, but always needs to be performed first, to make sure
    // that the other processes happen at the correct position and momentum. Therefore, because it needs to propose a *position*
-   // (unlike other PostStepDoIt methods), and because its total step length is not a priori known, 
-   // DoMultiStep is invoked from the AlongStepGetPhysicalInteractionLength method! 
+   // (unlike other PostStepDoIt methods), and because its total step length is not a priori known,
+   // DoMultiStep is invoked from the AlongStepGetPhysicalInteractionLength method!
 {
    G4bool finalstep = false;
-   G4bool testforsafety = (othersteplength>safety);// othersteplength is the limiting step from the other processes. If it is less than 
+   G4bool testforsafety = (othersteplength>safety);// othersteplength is the limiting step from the other processes. If it is less than
    // the current safety value, then it is necessarily limiting and there is no need to check against the safety after each individual step.
    // This can save us some time, and hence we define a special boolean for it.
    G4double nextstep = lastgpilvalue;// This is the step length taken *before* the first scatter event
@@ -1310,8 +1310,8 @@ G4double CADPhysicsSingleScattering::DoMultiStep(
          if (finalstep) break;// Exit the loop if this was determined to be the final step
 
          // Select the element and select the scattering angle (theta) for the next scattering event
-         G4double cosTheta = -1.;// Initialize         
-         // Select the energy value for selecting the element and scattering angle. Effectively, this gives a (log-log) interpolation of 
+         G4double cosTheta = -1.;// Initialize
+         // Select the energy value for selecting the element and scattering angle. Effectively, this gives a (log-log) interpolation of
          // all scattering probabilities between subsequent tabulated energy values.
          // Since there is a random component in this procedure, this needs to be redone for every individual step!
          G4int binforcs = 0;
@@ -1323,7 +1323,7 @@ G4double CADPhysicsSingleScattering::DoMultiStep(
          G4double xperel=0.;
          size_t ii=0;
          // Select the element
-         do {       
+         do {
             PSDInvMFPforEl = (*DInvMFPforMat)[ii];
             PSDInvMFPforEnergy1 = (*PSDInvMFPforEl)[binforcs];
             xperel = (*PSDInvMFPforEnergy1)[95];
@@ -1486,7 +1486,7 @@ G4double CADPhysicsSingleScattering::GetMeanFreePath(
 
    // Check the physical state of the material. The switch 'workforgases' determines if elastic scattering is done at all for gasesous materials
    // (or if this is left to more sophisticated gas scattering models)
-   if (currentMaterial->GetState()==kStateGas && !workforgases) 
+   if (currentMaterial->GetState()==kStateGas && !workforgases)
    {
       preStepMFP = DBL_MAX;
       previousMFP = preStepMFP;
@@ -1559,7 +1559,7 @@ G4double CADPhysicsSingleScattering::AlongStepGetPhysicalInteractionLength(
    G4double PhysicalStep,
    G4double& currentSafety,
    G4GPILSelection* selection)
-{  
+{
    *selection = CandidateForSelection;
 
    G4double value = lastgpilvalue;// This is the current physical interaction length
@@ -1610,7 +1610,7 @@ G4double CADPhysicsSingleScattering::AlongStepGetPhysicalInteractionLength(
             if (energyloss<finalT) finalT -= energyloss;
          }
          if (diffusionstep) return DoDiffusionStep(track,value,currentSafety);
-      } 
+      }
       multistep = true;// The requirements for a diffusion step were not met, hence do a 'normal' multistep
       return DoMultiStep(track,PhysicalStep,currentSafety);
    }
@@ -1628,20 +1628,20 @@ G4double CADPhysicsSingleScattering::PostStepGetPhysicalInteractionLength(
       // Here we update theNumberOfInteractionLengthLeft to account for this fact.
       safetycheck = false;
       theNumberOfInteractionLengthLeft = lastgpilvalue / currentInteractionLength;
-   } else { 
+   } else {
       safetycheck = false;
       if ( (previousStepSize <=0.0) || (theNumberOfInteractionLengthLeft<=0.0)) {
          // We're at the beginning of tracking, or just after a normal single/multi/diffusionstep of this process
          // In the latter case, G4VContinuousDiscreteProcess::PostStepDoIt has called the
-         // G4VProcess::ClearNumberOfInteractionLengthLeft() method which by default sets 
+         // G4VProcess::ClearNumberOfInteractionLengthLeft() method which by default sets
          // theNumberOfInteractionLengthLeft to -1.
          ResetNumberOfInteractionLengthLeft();// Draw a new random-distributed theNumberOfInteractionLengthLeft.
       } else {
          // Only after 'donothing':
-         // subtract previousStepSize/currentInteractionLength from NumberOfInteractionLengthLeft 
+         // subtract previousStepSize/currentInteractionLength from NumberOfInteractionLengthLeft
          SubtractNumberOfInteractionLengthLeft(previousStepSize);
          if(theNumberOfInteractionLengthLeft<0.) {
-            theNumberOfInteractionLengthLeft=perMillion;        
+            theNumberOfInteractionLengthLeft=perMillion;
          }
       }
    }
@@ -1664,7 +1664,7 @@ G4double CADPhysicsSingleScattering::PostStepGetPhysicalInteractionLength(
    } else {
       lastgpilvalue = DBL_MAX;
    }
-   *condition = Forced;// Always call PostStepDoIt 
+   *condition = Forced;// Always call PostStepDoIt
    return DBL_MAX;
 }
 
@@ -1672,7 +1672,7 @@ G4double CADPhysicsSingleScattering::PostStepGetPhysicalInteractionLength(
 void CADPhysicsSingleScattering::PrintInfoDefinition()
 {
    G4cout << "CADPhysicsSingleScattering: elastic scattering\n"
-      << " based on interpolated tabulated Mott cross sections\n" 
+      << " based on interpolated tabulated Mott cross sections\n"
       << " from Czyzewski et al., J.Appl.Phys. 68 (7), 3066 (1990),\n"
       << " screened relativistic Rutherford cross sections (above 30keV)\n"
       << " Williams & Carter, Transmission Electron Microscopy, Part-I basics, (1996) 39-40\n"
@@ -1680,5 +1680,3 @@ void CADPhysicsSingleScattering::PrintInfoDefinition()
       << " H.-J.Fitting et al., J.Electron Spectrosc.Rel.Phenom. 119 (2001) 35-47, and\n"
       << " E.Schreiber & H.-J.Fitting, J.Electron Spectrosc.Rel.Phenom. 124 (2002) 25-37." << G4endl;
 }
-
-

@@ -420,7 +420,7 @@ G4String CADPhysicsDI::GetdfFileForMaterial(const G4String &materialName)
       ost.str("");
       ost.clear();
       if (!path) {
-         ost << "../CADPhysics/df/df_" << materialName << ".dat";
+         ost << "/usr/local/share/CAD/df/df_" << materialName << ".dat";
       } else {
          ost << path << "/df/df_" << materialName << ".dat";
       }
