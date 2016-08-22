@@ -335,7 +335,10 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
                                                 G4double defpotential, G4double lattice)
                                                 // Calculate (differential) inverse MFPs for semiconductors and insulators
 {
-   G4double EBZ = 1.5095e-6 / (lattice*lattice);// The electron energy at the Brillouin zone boundary; EBZ in MeV, lattice in nm
+   G4double h_squared = (h_Planck/(joule*s))*(h_Planck/(joule*s));
+   G4double e_mass_kg = electron_mass_c2/(c_squared*kg);
+   G4double EBZ_pre = 1e-6*h_squared/(2*e_mass_kg*e_SI*1e-18);
+   G4double EBZ = EBZ_pre/(lattice*lattice);
    G4double screening = 5. * EBZ;// Screening parameter (see Fitting et al.)
 
    const G4Material* material = couple->GetMaterial();
