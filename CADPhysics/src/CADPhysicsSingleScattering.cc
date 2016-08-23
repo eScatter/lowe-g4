@@ -355,7 +355,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
 
    G4double hbar_5 = pow((hbar_Planck/(joule*s)),5.);
    G4double e_mass_3 = pow(e_mass_kg,3.);
-   G4double nB = ((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*(nanometer/meter)/(h_Planck/(joule*s)*soundvelocity)) - 1./2.; // Taylor expansion of number density (not allowed!)
+   G4double nB = 1./(exp((h_Planck/(joule*s)*soundvelocity)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*(nanometer/meter)))-1.); // number density
    G4double preconst2 = 2.*(2.*nB+1.)*e_mass_3*pow((defpotential/joule),2.)*lattice*(nanometer/meter) /
       (pi*pi*hbar_5*soundvelocity*totaldensity*(meter3/kilogram)); // SI units
    preconst2 = 1.e-6*(millimeter/meter)*(eV/joule)*preconst2; // G4 internal units and taking into account that the energy will be used in eV further down
