@@ -283,14 +283,14 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
          std::ofstream imfpfile;
          imfpfile.open (name.c_str());
          imfpfile << setprecision(6);
-         for(i=0; i<enrange.size(); i++) {
-            if (i==0) {
+         for(size_t ii=0; ii<enrange.size(); ii++) {
+            if (ii==0) {
                imfpfile << setw(12) << "Energy" << "\t" << setw(12) << "InelasticMFP" << G4endl;
                imfpfile << setw(12) << "(eV)"   << "\t" << setw(12) << "(nm)"       << G4endl;
             }
-            if ((*lambda)[i] != 0.0) {
-               imfpfile << scientific << setw(12) << enrange[i]/eV << "\t" << setw(12)
-                      << (1.0/(*lambda)[i])/nanometer << G4endl;
+            if ((*lambda)[ii] != 0.0) {
+               imfpfile << scientific << setw(12) << enrange[ii]/eV << "\t" << setw(12)
+                      << (1.0/(*lambda)[ii])/nanometer << G4endl;
             }
          }
          imfpfile.close();
