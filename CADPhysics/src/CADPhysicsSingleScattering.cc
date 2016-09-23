@@ -213,7 +213,22 @@ void CADPhysicsSingleScattering::BuildPhysicsTable(
             if(aMPT->ConstPropertyExists("LATTICE")) {
                lattice = aMPT->GetConstProperty("LATTICE");
                if (lattice>0.) {// Enough data to evaluate the phonon energy loss.
-                  fphononloss = 6.463e-8*eV*soundvelocity/lattice;
+                  G4double N = 100.;
+                  G4double k[101];
+                  k[0] = 0.;
+                  k[1] = 1.*pi/(N*lattice*nanometer/meter);
+                  G4double min = 0;
+                  G4double max = k[1]*k[1]*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k[1]*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));;
+                  G4double denominator = max * (k[1] - k[0]);
+                  for (size_t ki = 2; ki < 101; ki++) {
+                    k[ki] = ((double) ki)*pi/(N*lattice*nanometer/meter);
+                    min = max;
+                    max = k[ki]*k[ki]*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k[ki]*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));
+                    denominator += ((max + min)/2.) * (k[ki] - k[ki-1]);
+                  }
+                  G4double numerator = 16.0*soundvelocity*(pi-2.0)*hbar_Planck/(joule*s)/pow(lattice*nanometer/meter,4);
+                  fphononloss = numerator*eV/(denominator*e_SI);
+                  //fphononloss = 6.463e-8*eV*soundvelocity/lattice;;
                   if (fphononloss>0.05*eV) {
                      fphononloss = 0.05*eV;
                      G4cout << "CADPhysicsSingleScattering: Warning: " << G4endl;
