@@ -335,10 +335,11 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
                                                 G4double defpotential, G4double lattice)
                                                 // Calculate (differential) inverse MFPs for semiconductors and insulators
 {
-   G4double h_squared = (h_Planck/(joule*s))*(h_Planck/(joule*s));
    G4double e_mass_kg = electron_mass_c2/(c_squared*kg);
-   G4double EBZ_pre = (eV/MeV)*h_squared/(2*e_mass_kg*e_SI*pow(nanometer/meter,2.));
-   G4double EBZ = EBZ_pre/(lattice*lattice);
+   G4double k_bz = pi/(lattice*nanometer/meter);
+   G4double hbar_k_bz = (hbar_Planck/(joule*s))*k_bz;
+   G4double w_bz = k_bz*soundvelocity;
+   G4double EBZ = (eV/MeV)*(1.0/e_SI)*pow(hbar_k_bz,2)/(2*e_mass_kg);
    G4double screening = 5. * EBZ;// Screening parameter (see Fitting et al.)
 
    const G4Material* material = couple->GetMaterial();
@@ -355,9 +356,9 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
 
    G4double hbar_5 = pow((hbar_Planck/(joule*s)),5.);
    G4double e_mass_3 = pow(e_mass_kg,3.);
-   G4double nB = 1./(exp((h_Planck/(joule*s)*soundvelocity)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*(nanometer/meter)))-1.); // number density
-   G4double preconst2 = 2.*(2.*nB+1.)*e_mass_3*pow((defpotential/joule),2.)*lattice*(nanometer/meter) /
-      (pi*pi*hbar_5*soundvelocity*totaldensity*(meter3/kilogram)); // SI units
+   G4double nB = 1./(exp((hbar_Planck/(joule*s)*w_bz)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)))-1.); // number density
+   G4double preconst2 = 4.*(2.*nB+1.)*e_mass_3*pow((defpotential/joule),2.) /
+      (pi*hbar_5*w_bz*totaldensity*(meter3/kilogram)); // SI units
    preconst2 = 1.e-6*(millimeter/meter)*(eV/joule)*preconst2; // G4 internal units and taking into account that the energy will be used in eV further down
    preconst2 = preconst2 * pi; // Multiply the preconst2 with pi to get the same result as in Fitting 2001
    // Constant prefactor for inverse mean free path at energy above EBZ
