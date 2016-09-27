@@ -624,6 +624,7 @@ void CADPhysicsDI::CalculateCDCS (CADPhysicsDataTable* difflambdaformat,
 #endif
       G4double reduceden = enrange[i] - fermiEnergy;
       G4double omegaprime = enrange[0];
+      if (omegaprime>reduceden) difflambda->push_back(0.); //AT: this is for the cases where E-Ef<0.
       while(omegaprime<reduceden){// Loop over omega prime values
          G4double dcs = 0.;
          // k is a measure for the ratio omega prime / Ekin, used for looking up the L and Lprim
