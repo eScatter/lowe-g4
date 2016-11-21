@@ -70,7 +70,7 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
       theStatus = NotAtBoundary;
       return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
    }
-   
+
 
    // Detect whether we are moving into or out of the volume. In the latter case we can return immediately
    G4bool        valid;
@@ -88,7 +88,7 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
       // Make sure the normal points back into volume
       theLocalNormal = -theLocalNormal;
    } else {
-      // This happens if the particle is not at a boundary so nothing to be done 
+      // This happens if the particle is not at a boundary so nothing to be done
       // Observation: this happens if the track is curved due to fields
       if (verboseLevel > 1) {
          G4cerr << " CADPhysicseBoundary/PostStepDoIt(): " << " The Navigator reports that it returned an invalid normal" << G4endl;
@@ -143,11 +143,13 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
    OldEnergy = aParticle->GetKineticEnergy();
 
    G4MaterialPropertiesTable* aMPT;
+   G4int cond1 = 0;
    workFunction1 = 0;
    affinity1 = 0;
    fermiEnergy1 = 0;
    bandbending1 = 0;
    deltaphi1 = 0;
+   G4double bandgap1 = 0;
    aMPT = Material1->GetMaterialPropertiesTable();
    // Get material properties. An overview:
    // Work function - energy between Fermi level and vacuum
@@ -160,37 +162,53 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
    // lead to an alteration of the potential step; in other words, the potential step is assumed to be always fully localized.
    // At a vacuum interface however, the localized potential step is NOT altered by deltaphi; instead, it is assumed to be present
    // in the form of a patch field that affects the kinetic energy of the particle *before* it reaches the surface. Something similar
-   // holds true for the bandbending (where the field due to deltaphi is always in the vacuum while the effect of bandbending is 
+   // holds true for the bandbending (where the field due to deltaphi is always in the vacuum while the effect of bandbending is
    // noticeable on both sides of the surface). See also below in DielectricDielectric().
 
    if (aMPT) {
+      if(aMPT->ConstPropertyExists("CONDUCTORTYPE")) cond1 = (int)(aMPT->GetConstProperty("CONDUCTORTYPE")); // cond==0: metal, cond==1: semi, cond==2 insulator
       if(aMPT->ConstPropertyExists("WORKFUNCTION")) workFunction1 = aMPT->GetConstProperty("WORKFUNCTION");
       if(aMPT->ConstPropertyExists("AFFINITY")) affinity1 = aMPT->GetConstProperty("AFFINITY");
       if(aMPT->ConstPropertyExists("FERMIENERGY")) fermiEnergy1 = aMPT->GetConstProperty("FERMIENERGY");
       if(aMPT->ConstPropertyExists("BANDBENDING")) bandbending1 = aMPT->GetConstProperty("BANDBENDING");
       if(aMPT->ConstPropertyExists("DELTAPHI")) deltaphi1 = aMPT->GetConstProperty("DELTAPHI");
+      if(aMPT->ConstPropertyExists("BANDGAP")) bandgap1 = aMPT->GetConstProperty("BANDGAP");
       if(!workFunction1) workFunction1 = affinity1;
    }
+   if(cond1!=0 && fermiEnergy1==0) {
+      U1 = workFunction1 + bandgap1;
+   } else if(cond1!=0) {
+     U1 = workFunction1 + fermiEnergy1 + bandgap1/2.0;
+   } else {
+     U1 = workFunction1 + fermiEnergy1;
+   } // AT: Redefined the potential step for insulators and semiconductors to take the band gap into account improved for the case when fermiEnergy is zero
 
-   U1 = workFunction1 + fermiEnergy1;
-
+   G4int cond2 = 0;
    workFunction2 = 0;
    affinity2 = 0;
    fermiEnergy2 = 0;
    bandbending2 = 0;
    deltaphi2 = 0;
+   G4double bandgap2 = 0;
    aMPT = Material2->GetMaterialPropertiesTable();
    // Same for second material.
    if (aMPT) {
+      if(aMPT->ConstPropertyExists("CONDUCTORTYPE")) cond2 = (int)(aMPT->GetConstProperty("CONDUCTORTYPE"));
       if(aMPT->ConstPropertyExists("WORKFUNCTION")) workFunction2 = aMPT->GetConstProperty("WORKFUNCTION");
       if(aMPT->ConstPropertyExists("AFFINITY")) affinity2 = aMPT->GetConstProperty("AFFINITY");
       if(aMPT->ConstPropertyExists("FERMIENERGY")) fermiEnergy2 = aMPT->GetConstProperty("FERMIENERGY");
       if(aMPT->ConstPropertyExists("BANDBENDING")) bandbending2 = aMPT->GetConstProperty("BANDBENDING");
       if(aMPT->ConstPropertyExists("DELTAPHI")) deltaphi2 = aMPT->GetConstProperty("DELTAPHI");
+      if(aMPT->ConstPropertyExists("BANDGAP")) bandgap2 = aMPT->GetConstProperty("BANDGAP");
       if(!workFunction2) workFunction2 = affinity2;
    }
-
-   U2 = workFunction2 + fermiEnergy2;
+   if(cond2!=0 && fermiEnergy2==0) {
+      U2 = workFunction2 + bandgap2;
+   } else if(cond2!=0) {
+     U2 = workFunction2 + fermiEnergy2 + bandgap2/2.0;
+   } else {
+     U2 = workFunction2 + fermiEnergy2;
+   } // AT: Redefined the potential step for insulators and semiconductors to take the band gap into account improved for the case when fermiEnergy is zero
 
    Ugain = U2 + deltaphi2 - (U1 + deltaphi1);// Total kinetic energy gained when going from material 1 to material 2
    deltaU = Ugain;// Maximum height of the potential barrier to be overcome; criterion for transmission or reflection
@@ -211,11 +229,11 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
    DielectricDielectric();// Perform the actual reflection/transmission test
 
    if (theStatus == TotalInternalReflection && deltaU<0.)
-      // First criterion for killing the particle after reflection: 
+      // First criterion for killing the particle after reflection:
       // it may be killed if going from (e.g.) a material to vacuum, but it's always simply reflected if going from vacuum to a material
    {
       // A second criterion is about the particle's energy relative to the potential step:
-      if ( exp(1.+OldEnergy/(2.*deltaU)) > G4UniformRand() ) {// Just a guess - 'absorption' is most likely at low energies but 
+      if ( exp(1.+OldEnergy/(2.*deltaU)) > G4UniformRand() ) {// Just a guess - 'absorption' is most likely at low energies but
          // reflection should be more probable at very high energies (e.g. grazing incidence at interfaces in STEM simulations)
          NewEnergy = 0.;
          aParticleChange.ProposeTrackStatus(fStopAndKill);
@@ -305,7 +323,7 @@ void CADPhysicseBoundary::DielectricDielectric()
          // Simulate total internal reflection
          theStatus = TotalInternalReflection;
          NewMomentum = OldMomentum - (2.*PdotN)*theFacetNormal;
-         NewEnergy = OldEnergy;     
+         NewEnergy = OldEnergy;
       }
    }
 }
@@ -317,4 +335,3 @@ G4double CADPhysicseBoundary::GetMeanFreePath(const G4Track& ,
    *condition = Forced;
    return DBL_MAX;
 }
-
