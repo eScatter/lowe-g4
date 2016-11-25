@@ -352,7 +352,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
                                                 // Calculate (differential) inverse MFPs for semiconductors and insulators
 {
    G4double e_mass_kg = electron_mass_c2/(c_squared*kg);
-   G4double k_bz = pi/(lattice*nanometer/meter);
+   G4double k_bz = 2*pi/(lattice*nanometer/meter);
    G4double hbar_k_bz = (hbar_Planck/(joule*s))*k_bz;
    G4double w_bz = k_bz*soundvelocity;
    G4double EBZ = (eV/MeV)*(1.0/e_SI)*pow(hbar_k_bz,2)/(2*e_mass_kg);
