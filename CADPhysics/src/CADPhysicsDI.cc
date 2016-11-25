@@ -242,7 +242,11 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
          vec_minimumlimit.push_back(minlimit);
          vec_bandgap.push_back(bandgap);
          vec_conductortype.push_back(2);
-         barrier = fermieff + work - bb;
+         if(fermieff) {
+           barrier = fermieff + work + bandgap/2.0 - bb;
+         } else {
+           barrier = work + bandgap - bb;
+         }
          vec_barrier.push_back(barrier);
       } else if (cond==1) {// Semiconductor
 
@@ -253,7 +257,11 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
          vec_minimumlimit.push_back(minlimit);
          vec_bandgap.push_back(bandgap);
          vec_conductortype.push_back(1);
-         barrier = fermieff + work - bb;
+         if(fermieff) {
+           barrier = fermieff + work + bandgap/2.0 - bb;
+         } else {
+           barrier = work + bandgap - bb;
+         }
          vec_barrier.push_back(barrier);
       } else {// Metal
          vec_fermieff.push_back(fermieff);

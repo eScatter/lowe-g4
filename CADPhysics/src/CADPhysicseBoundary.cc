@@ -175,7 +175,7 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
       if(aMPT->ConstPropertyExists("BANDGAP")) bandgap1 = aMPT->GetConstProperty("BANDGAP");
       if(!workFunction1) workFunction1 = affinity1;
    }
-   if(cond1!=0 && fermiEnergy1==0) {
+   if(cond1!=0 && !fermiEnergy1) {
       U1 = workFunction1 + bandgap1;
    } else if(cond1!=0) {
      U1 = workFunction1 + fermiEnergy1 + bandgap1/2.0;
@@ -202,7 +202,7 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
       if(aMPT->ConstPropertyExists("BANDGAP")) bandgap2 = aMPT->GetConstProperty("BANDGAP");
       if(!workFunction2) workFunction2 = affinity2;
    }
-   if(cond2!=0 && fermiEnergy2==0) {
+   if(cond2!=0 && !fermiEnergy2) {
       U2 = workFunction2 + bandgap2;
    } else if(cond2!=0) {
      U2 = workFunction2 + fermiEnergy2 + bandgap2/2.0;
