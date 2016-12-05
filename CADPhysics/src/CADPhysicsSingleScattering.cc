@@ -214,17 +214,17 @@ void CADPhysicsSingleScattering::BuildPhysicsTable(
                lattice = aMPT->GetConstProperty("LATTICE");
                if (lattice>0.) {// Enough data to evaluate the phonon energy loss.
                   G4double N = 100.;
-                  G4double k[101];
-                  k[0] = 0.;
-                  k[1] = 1.*pi/(N*lattice*nanometer/meter);
+                  k_old = 0.;
+                  k_new = 1.*pi/(N*lattice*nanometer/meter);
                   G4double min = 0;
-                  G4double max = k[1]*k[1]*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k[1]*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));;
-                  G4double denominator = max * (k[1] - k[0]);
-                  for (size_t ki = 2; ki < 101; ki++) {
-                    k[ki] = ((double) ki)*pi/(N*lattice*nanometer/meter);
+                  G4double max = k_new*k_new*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k_new*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));;
+                  G4double denominator = max * (k_new - k_old);
+                  for (size_t ki = 2; ki < N+1; ki++) {
+                    k_old = k_new;
+                    k_new = ((double) ki)*pi/(N*lattice*nanometer/meter);
                     min = max;
-                    max = k[ki]*k[ki]*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k[ki]*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));
-                    denominator += ((max + min)/2.) * (k[ki] - k[ki-1]);
+                    max = k_new*k_new*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k_new*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));
+                    denominator += ((max + min)/2.) * (k_new - k_old);
                   }
                   G4double numerator = 16.0*soundvelocity*(pi-2.0)*hbar_Planck/(joule*s)/pow(lattice*nanometer/meter,4);
                   fphononloss = numerator*eV/(denominator*e_SI);
@@ -232,6 +232,7 @@ void CADPhysicsSingleScattering::BuildPhysicsTable(
                   if (fphononloss>0.05*eV) {
                      fphononloss = 0.05*eV;
                      G4cout << "CADPhysicsSingleScattering: Warning: " << G4endl;
+                     G4cout << "Calculated acoustic phonon energy constant is: " << fphononloss << " eV.";
                      G4cout << "Limiting acoustic phonon energy constant for material ";
                      G4cout << material->GetName() << " to 0.05 eV, to avoid unphysical results." << G4endl;
                   }
@@ -351,7 +352,7 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
                                                 // Calculate (differential) inverse MFPs for semiconductors and insulators
 {
    G4double e_mass_kg = electron_mass_c2/(c_squared*kg);
-   G4double k_bz = 2*pi/(lattice*nanometer/meter);
+   G4double k_bz = 2.*pi/(lattice*nanometer/meter); // times 2. is in order to correct for the two phonon branches that are not taken into account (has to be improved)
    G4double hbar_k_bz = (hbar_Planck/(joule*s))*k_bz;
    G4double w_bz = k_bz*soundvelocity;
    G4double EBZ = (eV/MeV)*(1.0/e_SI)*pow(hbar_k_bz,2)/(2*e_mass_kg);
