@@ -214,8 +214,8 @@ void CADPhysicsSingleScattering::BuildPhysicsTable(
                lattice = aMPT->GetConstProperty("LATTICE");
                if (lattice>0.) {// Enough data to evaluate the phonon energy loss.
                   G4double N = 100.;
-                  k_old = 0.;
-                  k_new = 1.*pi/(N*lattice*nanometer/meter);
+                  G4double k_old = 0.;
+                  G4double k_new = 1.*pi/(N*lattice*nanometer/meter);
                   G4double min = 0;
                   G4double max = k_new*k_new*(1. + 2./(exp(2.*hbar_Planck/(joule*s)*soundvelocity*sin(k_new*lattice*(nanometer/meter)/2.)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*nanometer/meter))-1.));;
                   G4double denominator = max * (k_new - k_old);
