@@ -427,8 +427,8 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
          if(integralZ<10) ost << "/usr/local/share/CAD/mott/0" << integralZ << ".dat";
                    else ost << "/usr/local/share/CAD/mott/" << integralZ << ".dat";
                 } else {
-         if(integralZ<10) ost << path << "/mott/0" << integralZ << ".dat";
-                   else ost << path << "/mott/" << integralZ << ".dat";
+         if(integralZ<10) ost << path << "/share/CAD/mott/0" << integralZ << ".dat";
+                   else ost << path << "/share/CAD/mott/" << integralZ << ".dat";
                 }
       G4String name = ost.str();
       if(verboseLevel>1) G4cout << "Trying to open file for element " << integralZ << "... ";
@@ -620,8 +620,8 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforMetal(const G4Mat
          if(integralZ<10) ost << "/usr/local/share/CAD/mott/0" << integralZ << ".dat";
                    else ost << "/usr/local/share/CAD/mott/" << integralZ << ".dat";
                 } else {
-         if(integralZ<10) ost << path << "/mott/0" << integralZ << ".dat";
-                   else ost << path << "/mott/" << integralZ << ".dat";
+         if(integralZ<10) ost << path << "/share/CAD/mott/0" << integralZ << ".dat";
+                   else ost << path << "/share/CAD/mott/" << integralZ << ".dat";
                 }
       G4String name = ost.str();
       if(verboseLevel>1) G4cout << "Trying to open file for element " << integralZ << "... ";
