@@ -31,8 +31,11 @@ To run the example, make a symbolic link to the SEM_4.10.00 in the `Examples/Tra
 
     cd ../Examples/Transmission
     ln -s /usr/local/bin/SEM_4.10.00 SEM
- 
+
 now simply execute:
  
     ./run.sh
 
+If the install directory was set to a different directory than the default directory, the environment variable `CADPHYSICS_BASE` has to be set to the install path `INSTALL_DIRECTORY`. In this case the example is started by:
+
+    CADPHYSICS_BASE=INSTALL_DIRECTORY ./run.sh
