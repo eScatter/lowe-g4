@@ -228,19 +228,20 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
 
    DielectricDielectric();// Perform the actual reflection/transmission test
 
-   if (theStatus == TotalInternalReflection && deltaU<0.)
+   // Surface absorption for internal reflection (turned off because there is no physical explanation)
+   //if (theStatus == TotalInternalReflection && deltaU<0.)
       // First criterion for killing the particle after reflection:
       // it may be killed if going from (e.g.) a material to vacuum, but it's always simply reflected if going from vacuum to a material
-   {
+   //{
       // A second criterion is about the particle's energy relative to the potential step:
-      if ( exp(1.+OldEnergy/(2.*deltaU)) > G4UniformRand() ) {// Just a guess - 'absorption' is most likely at low energies but
+    //  if ( exp(1.+OldEnergy/(2.*deltaU)) > G4UniformRand() ) {// Just a guess - 'absorption' is most likely at low energies but
          // reflection should be more probable at very high energies (e.g. grazing incidence at interfaces in STEM simulations)
-         NewEnergy = 0.;
-         aParticleChange.ProposeTrackStatus(fStopAndKill);
-         aParticleChange.ProposeLocalEnergyDeposit(OldEnergy);
-         theStatus = ParticleKilled;
-      }
-   }
+    //     NewEnergy = 0.;
+    //     aParticleChange.ProposeTrackStatus(fStopAndKill);
+    //     aParticleChange.ProposeLocalEnergyDeposit(OldEnergy);
+    //     theStatus = ParticleKilled;
+    //  }
+   //}
 
    NewMomentum = NewMomentum.unit();
 
