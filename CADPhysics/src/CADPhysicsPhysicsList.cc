@@ -1,6 +1,6 @@
 // CADPhysicsPhysicsList.cc
 //
-// See the header file for a general description 
+// See the header file for a general description
 //
 // History:
 // 2010-09-08: Added Rutherford elastic scattering model for energies above 30keV
@@ -20,7 +20,7 @@ CADPhysicsPhysicsList::CADPhysicsPhysicsList(): G4VUserPhysicsList()
 	// We don't want to be affected by this behavior and hence simply set this minimum range value to zero.
 	fCutsTable->SetEnergyRange(0.10001*eV, 1.*MeV);// Modifying the default G4VUserPhysicsList values of 0.99*keV and 100*TeV. The higher limit
 	// is not used anywhere in Geant4, but the lower limit is a lower bound to the 'minimum energy' as derived from the 'minimum range'.
-	// The resulting number is used in certain processes - including CADPhysicsLowEnergyIonisation, G4Bremsstrahlung, and the G4Penelope processes - 
+	// The resulting number is used in certain processes - including CADPhysicsLowEnergyIonisation, G4Bremsstrahlung, and the G4Penelope processes -
 	// as the lowest kinetic energy for secondary particles.
 	// Hence the abovementioned processes will not generate particles with energy lower than 0.10001 eV.
 	SetVerboseLevel(1);// Setting the verbosity of this class and fCutsTable to 1.
@@ -71,6 +71,8 @@ void CADPhysicsPhysicsList::ConstructParticle()
 #include "G4PhysicsListHelper.hh"
 #include "CADPhysicsAtomicDeexcitation.hh"
 
+#include "CADPhysicsTrapping.hh"
+
 void CADPhysicsPhysicsList::ConstructProcess()
 {
 	// Initialization
@@ -96,13 +98,13 @@ void CADPhysicsPhysicsList::ConstructProcess()
 
 	// Define processes
 	G4PhotoElectricEffect* gammaPhotoElectric = new G4PhotoElectricEffect();
-	G4PenelopePhotoElectricModel* thePEPenelopeModel = new G4PenelopePhotoElectricModel();   
+	G4PenelopePhotoElectricModel* thePEPenelopeModel = new G4PenelopePhotoElectricModel();
 	thePEPenelopeModel->SetHighEnergyLimit(PenelopeHighEnergyLimit);
 	gammaPhotoElectric->SetEmModel(thePEPenelopeModel, 1);
 //	G4LivermorePhotoElectricModel* thePELivermoreModel = new G4LivermorePhotoElectricModel();
 //	thePELivermoreModel->SetHighEnergyLimit(PenelopeHighEnergyLimit);
 //	gammaPhotoElectric->SetEmModel(thePELivermoreModel,1);
-	
+
 	G4ComptonScattering* gammaCompton       = new G4ComptonScattering();
 	G4PenelopeComptonModel* theComptonPenelopeModel = new G4PenelopeComptonModel();
 	theComptonPenelopeModel->SetHighEnergyLimit(PenelopeHighEnergyLimit);
@@ -116,7 +118,7 @@ void CADPhysicsPhysicsList::ConstructProcess()
 	gammaConversion->SetEmModel(theGCPenelopeModel,1);
 //	G4LivermoreGammaConversionModel* theGCLivermoreModel = new G4LivermoreGammaConversionModel();
 //	gammaConversion->SetEmModel(theGCLivermoreModel,1);
-	
+
 	G4RayleighScattering* gammaRayleigh      = new G4RayleighScattering();
 	G4PenelopeRayleighModel* theRayleighPenelopeModel = new G4PenelopeRayleighModel();
 	//theRayleighPenelopeModel->SetHighEnergyLimit(PenelopeHighEnergyLimit);
@@ -178,6 +180,7 @@ void CADPhysicsPhysicsList::ConstructProcess()
 	G4VProcess* theeminusLoweIonisation     = new CADPhysicsLowEnergyIonisation();
 	G4VProcess* theeminusLoweBremsstrahlung = new G4LowEnergyBremsstrahlung();
 	G4VProcess* theeminusKill               = new CADPhysicsKill();
+	G4VProcess* theeminusTrapping           = new CADPhysicsTrapping();
 
 	// Subscribe processes to the process manager
 	pManager->AddProcess(theeminusTransportation);
@@ -187,6 +190,7 @@ void CADPhysicsPhysicsList::ConstructProcess()
 	pManager->AddProcess(theeminusLoweIonisation);
 	pManager->AddProcess(theeminusLoweBremsstrahlung);
 	pManager->AddProcess(theeminusKill);
+	pManager->AddProcess(theeminusTrapping);
 
 	// Set ordering for AlongStepDoIt
 	pManager->SetProcessOrdering(theeminusTransportation,     idxAlongStep,0);
@@ -201,6 +205,7 @@ void CADPhysicsPhysicsList::ConstructProcess()
 	pManager->SetProcessOrdering(theeminusLoweIonisation,     idxPostStep,4);
 	pManager->SetProcessOrdering(theeminusLoweBremsstrahlung, idxPostStep,5);
 	pManager->SetProcessOrdering(theeminusKill,               idxPostStep,6);
+	pManager->SetProcessOrdering(theeminusTrapping,           idxPostStep,7);
 
 	// Set individual process parameter(s)
 	G4EmProcessOptions emOptions;
