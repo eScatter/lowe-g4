@@ -27,7 +27,7 @@ repeat this in the SEM directory:
 the executable SEM_4.10.00 should now be placed inside the usual installation directory `/usr/local/bin`
 or in the `/bin/` directory in the specified installation directory.
 
-To run the example, make a symbolic link to the SEM_4.10.00 in the Examples/Transmission directory
+To run the example, make a symbolic link to the SEM_4.10.00 in the `Examples/Transmission` directory
 
     cd ../Examples/Transmission
     ln -s /usr/local/bin/SEM_4.10.00 SEM
