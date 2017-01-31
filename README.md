@@ -13,26 +13,26 @@ Before installation, make sure to run the `geant4.sh` script to setup the right 
 
 Install the low-energy extension by going into the CADPhysics directory `cd CADPhysics` and executing:
 
-  cmake .
-  make
-  make install
+    cmake .
+    make
+    make install
 
 repeat this in the SEM directory:
 
-  cd ../SEM
-  cmake .
-  make
-  make install
+    cd ../SEM
+    cmake .
+    make
+    make install
 
 the executable SEM_4.10.00 should now be placed inside the usual installation directory `/usr/local/bin`
 or in the `/bin/` directory in the specified installation directory.
 
 To run the example, make a symbolic link to the SEM_4.10.00 in the Examples/Transmission directory
 
-  cd ../Examples/Transmission
-  ln -s /usr/local/bin/SEM_4.10.00 SEM
+    cd ../Examples/Transmission
+    ln -s /usr/local/bin/SEM_4.10.00 SEM
  
 now simply execute:
  
-  ./run.sh
+    ./run.sh
 
