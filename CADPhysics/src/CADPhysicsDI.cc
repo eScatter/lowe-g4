@@ -35,6 +35,7 @@
 // 2012-07-25: Added functionality so that user can have 'private' df files along with the global
 //             ones, which are supposedly 'validated'
 // 2013-06-06: Reformatted to width of 100 characters, some style changes
+// 2017-02-03: Modified primary el. momentum change for non-inner-shell excitations (i.e. plasmon)
 
 #include "CADPhysicsDI.hh"
 #include "CADPhysicsDIMessenger.hh"
@@ -1127,8 +1128,12 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    theEnergyDeposit += Ebind - ffermienergy;
 
    // Finally, sample the direction of the secondary electron
-   // This part of the code has been derived from (and is essentially still the same as) that of
+   // This part of the code has been derived from that of
    // G4LowEnergyIonisation.
+   // 2017-02-03: modification for non-inner-shell secondaries. Momentum transfer from the primary
+   // for plasmon excitations is only (by definition) equivalent to omega-omegaprime. deltaKinE 
+   // modified accordingly. N.B. - to be done: look also into mom. dist. of the secondary. For now,
+   // there is no theoretical basis to assume a certain distribution, so we just leave as is.
 
    // First transform to the shell potential - from both the (initial) primary kinetic energy and
    // the SE kinetic energy first subtract the Fermi energy, then add the binding energy *twice*.
@@ -1137,6 +1142,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // equal to Ebind so that it's total energy is E_pot + E_kin = -2*Ebind + Ebind = -Ebind, as it
    // is expected to be.
    G4double deltaKinE = omega + Ebind;
+   if (Ebind<50.*eV) deltaKinE = omega - omegaprime;//2017-02-03
    G4double primaryKinE = kineticEnergy - ffermienergy + 2.0*Ebind;
 
    // After the transformation we assume that the collision behaves as if it occurs between free
@@ -1159,7 +1165,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    if (cost2 > 1.) cost2 = 1.;
    G4double cost = sqrt(cost2);
    G4double sint = std::sqrt(1. - cost2);
-   G4double dirz = cost1;
+   G4double dirz = cost;
 #endif
 
    G4double phi  = twopi * G4UniformRand();
@@ -1212,6 +1218,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
 
    std::vector<G4double> VacancyEnergies;
       // for hole energies
+   newdir = newdir.unit();
    if (generateSecondaries) {
       // X-ray photons and Auger electrons from atom deexcitation
       if (shellId>0 && Z>5) {
@@ -1226,7 +1233,6 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
       // Add the 'normal' secondary electron to the secondary particle vector
       G4DynamicParticle* theDeltaRay = new G4DynamicParticle();
       theDeltaRay->SetKineticEnergy(secondaryKineticEnergy);
-      newdir = newdir.unit();
       theDeltaRay->SetMomentumDirection(newdir);
       theDeltaRay->SetDefinition(G4Electron::Electron());
       secondaryVector->push_back(theDeltaRay);
