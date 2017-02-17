@@ -1,13 +1,13 @@
 // CADPhysicsDI.hh
 //
-// Process for inelastic scattering in (non-gaseous) materials. "DI" stands for the Dielectric 
+// Process for inelastic scattering in (non-gaseous) materials. "DI" stands for the Dielectric
 // Ionisation formalism that is applied.
-// Several authors have used versions of this formalism. The present implementation of this class 
-// is most closely based on J.C. Ashley's description in 
-// J. Electr. Spectrosc. Rel. Phenom. 46: 199-214 (1988). 
-// This method first calculates total cross sections and differential cross sections for omega 
-// prime. In PostStepDoIt, omega is probed according to a function F(E,omega prime, omega) 
-// (eq. 7 in Ashley). See the detailed comments for more information. 
+// Several authors have used versions of this formalism. The present implementation of this class
+// is most closely based on J.C. Ashley's description in
+// J. Electr. Spectrosc. Rel. Phenom. 46: 199-214 (1988).
+// This method first calculates total cross sections and differential cross sections for omega
+// prime. In PostStepDoIt, omega is probed according to a function F(E,omega prime, omega)
+// (eq. 7 in Ashley). See the detailed comments for more information.
 // Note: this process is only active on non-gaseous materials.
 //
 
@@ -50,16 +50,16 @@ public:
       G4double   previousStepSize,
       G4ForceCondition* condition
       );
-      // Return the actual step size to be taken before the next discrete event of this process, 
+      // Return the actual step size to be taken before the next discrete event of this process,
       // and set the 'G4ForceCondition', i.e. determine whether a call to the PostStepDoIt function
-      // should be forced for this step. Overloading the base class with the sole purpose of 
-      // adjusting the verbosity levels and corresponding output. On the meaning of various values 
+      // should be forced for this step. Overloading the base class with the sole purpose of
+      // adjusting the verbosity levels and corresponding output. On the meaning of various values
       // of verboseLevel:
       // 0  - Silent except for essential warning messages
       // 1  - Basic information during initialization
       // 2  - More extensive information during initialization
       // 3  - For output of e.g. cross section tables to screen during initialization
-      // >3 - For (debugging) output during simulations, e.g. in 
+      // >3 - For (debugging) output during simulations, e.g. in
       //      PostStepGetPhysicalInteractionLength, or perhaps in PostStepDoIt
 
    G4double AlongStepGetPhysicalInteractionLength(const G4Track&,
@@ -69,20 +69,20 @@ public:
       G4GPILSelection* selection);
       // Limit the step size for the continuous part of the process.
       // The function overloads the corresponding function of the base
-      // class. It invokes the method GetContinuousStepLimit at every step. The overloaded version 
+      // class. It invokes the method GetContinuousStepLimit at every step. The overloaded version
       // follows the default behavior.
 
    G4double GetContinuousStepLimit(const G4Track& aTrack,
       G4double previousStepSize,
       G4double currentMinimumStep,
-      G4double& currentSafety); 
+      G4double& currentSafety);
       // Returns the step size limit for the continuous part of the process.
-      // Invoked by the AlongStepGetPhysicalInteractionLength method.  
+      // Invoked by the AlongStepGetPhysicalInteractionLength method.
 
    G4double GetMeanFreePath(const G4Track& aTrack,
       G4double previousStepSize,
       G4ForceCondition* condition);
-      // This function overloads a virtual function of the base class, and is invoked by 
+      // This function overloads a virtual function of the base class, and is invoked by
       // PostStepGetPhysicalInteractionLength()
       // Returns the mean free path of the process for this step.
 
@@ -90,7 +90,7 @@ public:
       // Perform the continuous part of the process
 
    G4VParticleChange* PostStepDoIt(const G4Track& aTrack,const G4Step& aStep);
-      // Perform the discrete part of the process: determine the final state of the particle 
+      // Perform the discrete part of the process: determine the final state of the particle
       // after the step, and generate secondary particles (if any)
 
    // Public inline methods
@@ -107,7 +107,7 @@ public:
    inline void SetGenerateXrays(G4bool genxray) {
       // Method to determine whether X ray photons should be generated.
       generateXrays = genxray;
-   }   
+   }
 
    inline G4bool GetGenerateXrays() {
       // Corresponding 'get' method (invoked by the Messenger)
@@ -146,7 +146,7 @@ public:
    }
 
    inline void ResetCounter() {
-      // Method called from the Messenger for counting generated secondary electrons 
+      // Method called from the Messenger for counting generated secondary electrons
       // (for debugging purposes)
       G4cout << "DI generated total of " << pairsgenerated << " pairs." << G4endl;
       pairsgenerated = 0;
@@ -160,7 +160,7 @@ private:
 
    // Private methods:
    void BuildEnrange();
-      // Fill the enrange, Psecenergies and Psecvalues vectors. Invoked at initialization 
+      // Fill the enrange, Psecenergies and Psecvalues vectors. Invoked at initialization
       // (by the BuildPhysicsTable method).
 
    G4String GetdfFileForMaterial(const G4String &materialName);
@@ -170,18 +170,18 @@ private:
    G4bool ExistsFileForMaterial(const G4String &materialName);
       // Check existence of a file with name materialName. Invoked by ExistsdfFileForMaterial.
 
-   void ReadEpsilonFile(const G4String& materialName, 
-      const G4String& materialFormula, 
-      G4bool isgas, 
+   void ReadEpsilonFile(const G4String& materialName,
+      const G4String& materialFormula,
+      G4bool isgas,
       G4double barrier);
       // Read a material's inner shell energies and energy loss function from file
 
    void InterpolateEpsilon();
       // Interpolate the energy loss function to the 'standard' energy values stored in enrange
 
-   void CalculateCDCS (CADPhysicsDataTable* cdcs, 
-      G4DataVector* csv, 
-      G4double fermiEnergy, 
+   void CalculateCDCS (CADPhysicsDataTable* cdcs,
+      G4DataVector* csv,
+      G4double fermiEnergy,
       G4double work);
       // Calculate the Cumulative Differential Cross Section and the electron's range as a function
       // of energy
@@ -191,19 +191,19 @@ private:
 
    void TabulateL();
       // Tabulate values of the 'L' and 'Lprim' functions that are used by CalculateCDCS
-      // See Ashley eq. (20) the non-exchange corrected definition of L, and also see further 
+      // See Ashley eq. (20) the non-exchange corrected definition of L, and also see further
       // notes in the code.
 
    G4int FindIntLogen(G4double kineticEnergy);
       // Return the number of the energy bin that kineticEnergy is in
 
    G4VParticleChange* Phononloss(const G4Track& aTrack,
-      const G4Step& aStep, 
-      G4double kinenergy, 
+      const G4Step& aStep,
+      G4double kinenergy,
       G4double omegaprime);
       // Process the event in case of sub-bandgap energy loss in semiconductors and insulators.
 
-   // Data members: 
+   // Data members:
    CADPhysicsDIMessenger* messenger;
 
    G4double LowestKineticEnergy;
@@ -289,12 +289,15 @@ private:
       // Counter for the number of secondary electrons created.
 
    G4bool killthisone;
-      // Boolean set by GetMeanFreePath that tells PostStepDoIt to kill the 
+      // Boolean set by GetMeanFreePath that tells PostStepDoIt to kill the
       // particle in case its energy has fallen below the energy limit.
 
    // Specific for Auger/X-ray generation
    G4CrossSectionHandler* crossSectionHandler;
    CADPhysicsAtomicDeexcitation deexcitation;
+
+   // for the output of the absorbed electrons
+   std::ofstream output;
 
 };
 
@@ -319,10 +322,10 @@ inline G4double CADPhysicsDI::PostStepGetPhysicalInteractionLength(
       // Update NumberOfInteractionLengthLeft for the size of the previous step taken
       SubtractNumberOfInteractionLengthLeft(previousStepSize);
       if(theNumberOfInteractionLengthLeft<0.)
-         theNumberOfInteractionLengthLeft=perMillion;        
+         theNumberOfInteractionLengthLeft=perMillion;
    }
 
-   // Condition is set to "Not Forced", i.e. a call to PostStepDoIt is not normally enforced 
+   // Condition is set to "Not Forced", i.e. a call to PostStepDoIt is not normally enforced
    // for this step
    *condition = NotForced;
 
@@ -370,7 +373,7 @@ inline G4double CADPhysicsDI::AlongStepGetPhysicalInteractionLength(
    G4double steplength = GetContinuousStepLimit(track,previousStepSize,
       currentMinimumStep,currentSafety);
 
-   // Set return value for G4GPILSelection to the default value: 
+   // Set return value for G4GPILSelection to the default value:
    *selection = NotCandidateForSelection;
    return  steplength;
 }
