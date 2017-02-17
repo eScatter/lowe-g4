@@ -11,6 +11,8 @@
 #include "globals.hh"
 #include "CADPhysicsUnits.hh"
 #include "CADPhysicsTrappingMessenger.hh"
+#include <CLHEP/Units/SystemOfUnits.h>
+#include "G4SystemOfUnits.hh"
 
 // class CADPhysicsKillMessenger;
 
@@ -48,7 +50,8 @@ public:
 
 	G4VParticleChange* PostStepDoIt(const G4Track& aTrack,const G4Step& aStep);
 
-//	inline void SetLength(G4double kl) {traplength=kl;}// Method (called by the messenger) to set traplength
+	inline void SetTrap_C(G4double kl) {trap_C=1./kl;}// Method (called by the messenger) to set trap_C
+	inline void SetTrap_g(G4double kl) {trap_g=1./kl;}// Method (called by the messenger) to set trap_g
 //	inline G4double GetLength() {return traplength;}// Corresponding 'get' method
 
 private:
