@@ -28,16 +28,16 @@
 // does the 'real' work, and is called by CADPhysicsSingleScattering *before* AlongStepGetPhysicalInteractionLength is called.
 // AlongStepDoIt has also been modified accordingly.
 //
-// The reason for this way of working is that normally, G4Transportation is the last process to execute its 
+// The reason for this way of working is that normally, G4Transportation is the last process to execute its
 // AlongStepGetPhysicalInteractionLength method, but once it does so, it immediately proceeds to calculate the post-step parameters
 // (position, direction, time, etc.) of the particle. While CADPhysicsSingleScattering needs to know the length of the geometry-limited step
-// and the current safety, it also needs to be able to 'overrule' the geometry-limited step size of G4Transportation in the case of application of the 
+// and the current safety, it also needs to be able to 'overrule' the geometry-limited step size of G4Transportation in the case of application of the
 // 'multistep' or 'diffusionstep' model. Hence, its AlongStepPhysicalInteractionLength() is called by the SteppingManager *before* that of
 // the Transportation process, but 'under water' CADPhysicsSingleScattering gets all the information from the Transportation process that its needs
 // via the RealASGPIL method.
-// 
+//
 // See further comments marked 'EK' in this file and in the abovementioned methods in CADPhysicsTransportation.cc
-// 
+//
 #ifndef CADPhysicsTransportation_hh
 #define CADPhysicsTransportation_hh 1
 
@@ -54,20 +54,20 @@
 #include "G4ParticleChangeForTransport.hh"
 class G4SafetyHelper;
 
-class CADPhysicsTransportation : public G4VProcess 
+class CADPhysicsTransportation : public G4VProcess
 {
-   // Concrete class that does the geometrical transport 
+   // Concrete class that does the geometrical transport
 
 public:  // with description
    //constructor method hidden as private. GetInstance() method public instead:
    static CADPhysicsTransportation* GetInstance();
 
-   ~CADPhysicsTransportation(); 
+   ~CADPhysicsTransportation();
 
    G4double AlongStepGetPhysicalInteractionLength(
       const G4Track& track,
       G4double  previousStepSize,
-      G4double  currentMinimumStep, 
+      G4double  currentMinimumStep,
       G4double& currentSafety,
       G4GPILSelection* selection
       );
@@ -76,7 +76,7 @@ public:  // with description
    G4double RealASGPIL(
       const G4Track& track,
       G4double  previousStepSize,
-      G4double  currentMinimumStep, 
+      G4double  currentMinimumStep,
       G4double& currentSafety,
       G4GPILSelection* selection
       );
@@ -98,7 +98,7 @@ public:  // with description
       G4double   previousStepSize,
       G4ForceCondition* pForceCond
       );
-   // Forces the PostStepDoIt action to be called, 
+   // Forces the PostStepDoIt action to be called,
    // but does not limit the step.
 
    G4PropagatorInField* GetPropagatorInField();
@@ -110,25 +110,25 @@ public:  // with description
    // Level of warnings regarding eg energy conservation
    // in field integration.
 
-   inline G4double GetThresholdWarningEnergy() const; 
-   inline G4double GetThresholdImportantEnergy() const; 
-   inline G4int GetThresholdTrials() const; 
+   inline G4double GetThresholdWarningEnergy() const;
+   inline G4double GetThresholdImportantEnergy() const;
+   inline G4int GetThresholdTrials() const;
 
-   inline void SetThresholdWarningEnergy( G4double newEnWarn ); 
-   inline void SetThresholdImportantEnergy( G4double newEnImp ); 
-   inline void SetThresholdTrials(G4int newMaxTrials ); 
+   inline void SetThresholdWarningEnergy( G4double newEnWarn );
+   inline void SetThresholdImportantEnergy( G4double newEnImp );
+   inline void SetThresholdTrials(G4int newMaxTrials );
 
-   // Get/Set parameters for killing loopers: 
-   //   Above 'important' energy a 'looping' particle in field will 
+   // Get/Set parameters for killing loopers:
+   //   Above 'important' energy a 'looping' particle in field will
    //   *NOT* be abandoned, except after fThresholdTrials attempts.
    // Below Warning energy, no verbosity for looping particles is issued
 
-   inline G4double GetMaxEnergyKilled() const; 
+   inline G4double GetMaxEnergyKilled() const;
    inline G4double GetSumEnergyKilled() const;
-   inline void ResetKilledStatistics( G4int report = 1);      
+   inline void ResetKilledStatistics( G4int report = 1);
    // Statistics for tracks killed (currently due to looping in field)
 
-   inline void EnableShortStepOptimisation(G4bool optimise=true); 
+   inline void EnableShortStepOptimisation(G4bool optimise=true);
    // Whether short steps < safety will avoid to call Navigator (if field=0)
 
 
@@ -136,7 +136,7 @@ public:  // without description
 
    G4double AtRestGetPhysicalInteractionLength(
       const G4Track& ,
-      G4ForceCondition* 
+      G4ForceCondition*
       ) { return -1.0; };
    // No operation in  AtRestDoIt.
 
@@ -147,7 +147,7 @@ public:  // without description
    // No operation in  AtRestDoIt.
 
    void StartTracking(G4Track* aTrack);
-   // Reset state for new (potentially resumed) track 
+   // Reset state for new (potentially resumed) track
 
 protected:
 
@@ -172,7 +172,7 @@ private:
    G4ThreeVector        fTransportEndSpin;
    G4bool               fMomentumChanged;
    G4bool               fEnergyChanged;
-   G4bool               fEndGlobalTimeComputed; 
+   G4bool               fEndGlobalTimeComputed;
    G4double             fCandidateEndGlobalTime;
    // The particle's state after this Step, Store for DoIt
 
@@ -189,7 +189,7 @@ private:
    // Flag to determine whether a boundary was reached.
 
    G4ThreeVector  fPreviousSftOrigin;
-   G4double       fPreviousSafety; 
+   G4double       fPreviousSafety;
    // Remember last safety origin & value.
 
    G4ParticleChangeForTransport fParticleChange;
@@ -197,19 +197,19 @@ private:
 
    G4double endpointDistance;
 
-   // Thresholds for looping particles: 
-   // 
+   // Thresholds for looping particles:
+   //
    G4double fThreshold_Warning_Energy;     //  Warn above this energy
    G4double fThreshold_Important_Energy;   //  Hesitate above this
    G4int    fThresholdTrials;              //    for this no of trials
-   // Above 'important' energy a 'looping' particle in field will 
+   // Above 'important' energy a 'looping' particle in field will
    //   *NOT* be abandoned, except after fThresholdTrials attempts.
    G4double fUnimportant_Energy;
    //  Below this energy, no verbosity for looping particles is issued
 
    // Counter for steps in which particle reports 'looping',
-   //   if it is above 'Important' Energy 
-   G4int    fNoLooperTrials; 
+   //   if it is above 'Important' Energy
+   G4int    fNoLooperTrials;
    // Statistics for tracks abandoned
    G4double fSumEnergyKilled;
    G4double fMaxEnergyKilled;
@@ -220,32 +220,35 @@ private:
 
         G4SafetyHelper* fpSafetyHelper;  // To pass it the safety value obtained
 
-   // Verbosity 
+   // Verbosity
    G4int    fVerboseLevel;
    // Verbosity level for warnings
    // eg about energy non-conservation in magnetic field.
 
    // EK: new variables for communication with CADPhysicsSingleScattering:
-   G4bool fDoconventionalstep; // Boolean set by AlongStepGetInteractionLength(). 
+   G4bool fDoconventionalstep; // Boolean set by AlongStepGetInteractionLength().
       // Signals AlongStepDoIt() whether it should do a conventional step.
 
-   // EK: the following are parameters set by AlongStepGetInteractionLength() 
+   // EK: the following are parameters set by AlongStepGetInteractionLength()
    //     that are needed by RealASGPIL()
    G4double geometryStepLength;// Physical step length as limited by the geometry
    G4double fSafety;
    G4GPILSelection* fselection;
 
    G4bool asgpildone;
-       // This boolean tells AlongStepGetInteractionLength() 
-       // whether RealASGPIL() has been executed for this step. Since 
-       // RealASGPIL() is normally called by CADPhysicsSingleScattering for 
+       // This boolean tells AlongStepGetInteractionLength()
+       // whether RealASGPIL() has been executed for this step. Since
+       // RealASGPIL() is normally called by CADPhysicsSingleScattering for
        // every step, if it hasn't been executed, this means that apparently
-       // CADPhysicsSingleScattering is not present or inactive. In this case, 
+       // CADPhysicsSingleScattering is not present or inactive. In this case,
        // the current run is aborted so that the user can fix the matter.
 
    // EK, end of addition
+
+   // for the output of the absorbed electrons
+   std::ofstream output;
 };
 
 #include "CADPhysicsTransportation.icc"
 
-#endif  
+#endif

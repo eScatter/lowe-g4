@@ -17,8 +17,8 @@ public:
 	CADPhysicsTrappingMessenger(CADPhysicsTrapping* mpga);
 	~CADPhysicsTrappingMessenger();
 
-//public:
-//	void SetNewValue(G4UIcommand * command,G4String newValues);
+public:
+	void SetNewValue(G4UIcommand * command,G4String newValues);
 //	G4String GetCurrentValue(G4UIcommand * command);
 
 private:
@@ -27,7 +27,8 @@ private:
 	G4UIdirectory*          trappingDir;
 
 	// The only user command
-	//G4UIcmdWithADoubleAndUnit*	lengthCmd;
+	G4UIcmdWithADoubleAndUnit*	trap_C_Cmd;
+	G4UIcmdWithADoubleAndUnit*	trap_g_Cmd;
 };
 
 #endif

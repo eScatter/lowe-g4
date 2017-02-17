@@ -4,6 +4,7 @@
 
 #include "CADPhysicsTransportation.hh"
 #include "CADPhysicsSingleScattering.hh"
+#include "CADPhysicsOutput.hh"
 #include "G4ProductionCutsTable.hh"
 #include "G4ParticleTable.hh"
 #include "G4ChordFinder.hh"
@@ -24,20 +25,20 @@ CADPhysicsTransportation::CADPhysicsTransportation( G4int verboseLevel )
     fParticleIsLooping( false ),
     fPreviousSftOrigin (0.,0.,0.),
     fPreviousSafety    ( 0.0 ),
-    fThreshold_Warning_Energy( 100 * MeV ),  
-    fThreshold_Important_Energy( 250 * MeV ), 
-    fThresholdTrials( 10 ), 
-    fUnimportant_Energy( 1 * MeV ), 
+    fThreshold_Warning_Energy( 100 * MeV ),
+    fThreshold_Important_Energy( 250 * MeV ),
+    fThresholdTrials( 10 ),
+    fUnimportant_Energy( 1 * MeV ),
     fNoLooperTrials(0),
-    fSumEnergyKilled( 0.0 ), fMaxEnergyKilled( 0.0 ), 
+    fSumEnergyKilled( 0.0 ), fMaxEnergyKilled( 0.0 ),
     fShortStepOptimisation(false),    // Old default: true (=fast short steps)
     fVerboseLevel( verboseLevel )
 {
-  G4TransportationManager* transportMgr ; 
+  G4TransportationManager* transportMgr ;
 
-  transportMgr = G4TransportationManager::GetTransportationManager() ; 
+  transportMgr = G4TransportationManager::GetTransportationManager() ;
 
-  fLinearNavigator = transportMgr->GetNavigatorForTracking() ; 
+  fLinearNavigator = transportMgr->GetNavigatorForTracking() ;
 
   // fGlobalFieldMgr = transportMgr->GetFieldManager() ;
 
@@ -46,13 +47,13 @@ CADPhysicsTransportation::CADPhysicsTransportation( G4int verboseLevel )
   fpSafetyHelper =   transportMgr->GetSafetyHelper();  // New
 
   // Cannot determine whether a field exists here,
-  //  because it would only work if the field manager has informed 
-  //  about the detector's field before this transportation process 
+  //  because it would only work if the field manager has informed
+  //  about the detector's field before this transportation process
   //  is constructed.
   // Instead later the method DoesGlobalFieldExist() is called
 
   static G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
-  fCurrentTouchableHandle = nullTouchableHandle; 
+  fCurrentTouchableHandle = nullTouchableHandle;
 
   fEndGlobalTimeComputed  = false;
   fCandidateEndGlobalTime = 0;
@@ -82,11 +83,12 @@ CADPhysicsTransportation* CADPhysicsTransportation::GetInstance()
 
 CADPhysicsTransportation::~CADPhysicsTransportation()
 {
-   if( (fVerboseLevel > 0) && (fSumEnergyKilled > 0.0 ) ){ 
+   if( (fVerboseLevel > 0) && (fSumEnergyKilled > 0.0 ) ){
       G4cout << " CADPhysicsTransportation: Statistics for looping particles " << G4endl;
       G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
       G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
-   } 
+   }
+   output.close();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,11 +103,11 @@ AlongStepGetPhysicalInteractionLength( const G4Track&,//  track,
                              G4double, //  previousStepSize
                              G4double,//  currentMinimumStep,
                              G4double& currentSafety,
-                             G4GPILSelection* selection )                             
+                             G4GPILSelection* selection )
 {
-   // EK, AlongStepGetPhysicalInteractionLength() has been reduced to a routine 
+   // EK, AlongStepGetPhysicalInteractionLength() has been reduced to a routine
    // that passes the parameters set by RealASGPIL to the SteppingManager.
-   // This routine assumes that RealASGPIL has already been executed for the 
+   // This routine assumes that RealASGPIL has already been executed for the
    // current step. If not, it issues a warning and aborts the run.
    if (!asgpildone) {
       G4cerr << "CADPhysicsTransportation: process 'ssc' (defined by CADPhysicsSingleScattering) appears to be inactive!" << G4endl;
@@ -127,14 +129,14 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
                                    G4GPILSelection* selection )
 {
    asgpildone = true;
-   //G4double geometryStepLength, newSafety ; 
+   //G4double geometryStepLength, newSafety ;
    G4double newSafety;
    fParticleIsLooping = false ;
 
-   // Initial actions moved to  StartTrack()   
+   // Initial actions moved to  StartTrack()
    // --------------------------------------
    // Note: in case another process changes touchable handle
-   //    it will be necessary to add here (for all steps)   
+   //    it will be necessary to add here (for all steps)
    // fCurrentTouchableHandle = aTrack->GetTouchableHandle();
 
    // GPILSelection is set to defaule value of CandidateForSelection
@@ -151,7 +153,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
 
    // G4double   theTime        = track.GetGlobalTime() ;
 
-   // The Step Point safety can be limited by other geometries and/or the 
+   // The Step Point safety can be limited by other geometries and/or the
    // assumptions of any process - it's not always the geometrical safety.
    // We calculate the starting point's isotropic safety here.
    //
@@ -172,22 +174,22 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
    G4bool multistepping = false;
    G4double elsl = CADPhysicsSingleScattering::GetInstance()->GetFirstsinglestep(multistepping);
    // The above call does two things:
-   // 1) CADPhysicsSingleScattering returns the size of the step before 
+   // 1) CADPhysicsSingleScattering returns the size of the step before
    //    the *first* elastic scatter event
-   // 2) The boolean multistepping is set to the value that reflects whether 
+   // 2) The boolean multistepping is set to the value that reflects whether
    //    CADPhysicsSingleScattering has been set up to do multistepping. If
    //    not, then we are certain to proceed with a conventional step.
    if (elsl < currentMinimumStep) {
-         // The elastic scattering interaction length is 
-         // smaller than any length defined by another process. If not, 
+         // The elastic scattering interaction length is
+         // smaller than any length defined by another process. If not,
          // then another process wins and we proceed to do a conventional step.
-      currentMinimumStep = elsl;// Update the current minimum step for the interaction 
+      currentMinimumStep = elsl;// Update the current minimum step for the interaction
          // length indicated by SingleScattering
 
       if (multistepping) {// CADPhysicsSingleScattering was told by the user that it can do multistepping
-         if (elsl<currentSafety) {// Its interaction length is smaller than the 
-               // current safety, so Transportation knows that it should not do 
-               // a conventional step, and SingleScattering will perform either 
+         if (elsl<currentSafety) {// Its interaction length is smaller than the
+               // current safety, so Transportation knows that it should not do
+               // a conventional step, and SingleScattering will perform either
                // a multi- or a diffusionstep.
             *selection = NotCandidateForSelection ;
             *fselection = *selection;
@@ -197,12 +199,12 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
             return DBL_MAX;
          }
 
-         // The currently known safety is smaller than the next step length. 
+         // The currently known safety is smaller than the next step length.
          // However, we can recalculate the safety and make a second attempt.
          G4double linearnewsafety = fLinearNavigator->ComputeSafety(startPosition);
          if (elsl<linearnewsafety) {// See above
             currentSafety = linearnewsafety ;
-               // The newly calculated safety is stored to currentSafety for 
+               // The newly calculated safety is stored to currentSafety for
                // the benefit of SingleScattering
             *selection = NotCandidateForSelection ;
             *fselection = *selection;
@@ -215,8 +217,8 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
       // If we get here, then SingleScattering was told not to do multistepping and we proceed to do a conventional step.
    }
    CADPhysicsSingleScattering::GetInstance()->NoRaytrace();
-      // Since Transportation does a conventional step, CADPhysicsSingleScattering 
-      // is told not to do any raytracing (i.e. no multi- or diffusionstep). It may 
+      // Since Transportation does a conventional step, CADPhysicsSingleScattering
+      // is told not to do any raytracing (i.e. no multi- or diffusionstep). It may
       // still do a single elastic scatter event, depending on its interaction
       // length compared to other processes.
 
@@ -224,14 +226,14 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
 
    // Is the particle charged ?
    //
-   G4double              particleCharge = pParticle->GetCharge() ; 
+   G4double              particleCharge = pParticle->GetCharge() ;
    G4double              magneticMoment = pParticle->GetMagneticMoment() ;
 
    fGeometryLimitedStep = false ;
    // fEndGlobalTimeComputed = false ;
 
    // There is no need to locate the current volume. It is Done elsewhere:
-   //   On track construction 
+   //   On track construction
    //   By the tracking, after all AlongStepDoIts, in "Relocation"
 
    // Check whether the particle have an (EM) field force exerting upon it
@@ -240,7 +242,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
    G4bool          fieldExertsForce = false ;
    if( (particleCharge != 0.0) )
    {
-      fieldMgr= fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
+      fieldMgr= fFieldPropagator->FindAndSetFieldManager( track.GetVolume() );
       if (fieldMgr != 0) {
         // Message the field Manager, to configure it for this track
         fieldMgr->ConfigureForTrack( &track );
@@ -250,12 +252,12 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
 
          // If the field manager has no field, there is no field !
          fieldExertsForce = (fieldMgr->GetDetectorField() != 0);
-      } 
+      }
    }
 
-   // Choose the calculation of the transportation: Field or not 
+   // Choose the calculation of the transportation: Field or not
    //
-   if( !fieldExertsForce ) 
+   if( !fieldExertsForce )
    {
       G4double linearStepLength ;
       if( fShortStepOptimisation && (currentMinimumStep <= currentSafety) )
@@ -269,14 +271,14 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
       {
          //  Find whether the straight path intersects a volume
          //
-         linearStepLength = fLinearNavigator->ComputeStep( startPosition, 
+         linearStepLength = fLinearNavigator->ComputeStep( startPosition,
                                                            startMomentumDir,
-                                                           currentMinimumStep, 
+                                                           currentMinimumStep,
                                                            newSafety) ;
          // Remember last safety origin & value.
          //
          fPreviousSftOrigin = startPosition ;
-         fPreviousSafety    = newSafety ; 
+         fPreviousSafety    = newSafety ;
 
          // The safety at the initial point has been re-calculated:
          //
@@ -304,11 +306,11 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
 
       // Momentum direction, energy and polarisation are unchanged by transport
       //
-      fTransportEndMomentumDir   = startMomentumDir ; 
+      fTransportEndMomentumDir   = startMomentumDir ;
       fTransportEndKineticEnergy = track.GetKineticEnergy() ;
       fTransportEndSpin          = track.GetPolarization();
       fParticleIsLooping         = false ;
-      fMomentumChanged           = false ; 
+      fMomentumChanged           = false ;
       fEndGlobalTimeComputed     = false ;
    }
    else   //  A field exerts force
@@ -322,30 +324,30 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
                                 magneticMoment,
                                 pParticleDef->GetPDGSpin() );
 
-      G4EquationOfMotion* equationOfMotion = 
+      G4EquationOfMotion* equationOfMotion =
       (fFieldPropagator->GetChordFinder()->GetIntegrationDriver()->GetStepper())
       ->GetEquationOfMotion();
 
       equationOfMotion->SetChargeMomentumMass( chargeState,    // in e+ units
-                                               momentumMagnitude, // in Mev/c 
-                                               restMass           ) ;  
+                                               momentumMagnitude, // in Mev/c
+                                               restMass           ) ;
 
       G4ThreeVector spin        = track.GetPolarization() ;
-      G4FieldTrack  aFieldTrack = G4FieldTrack( startPosition, 
+      G4FieldTrack  aFieldTrack = G4FieldTrack( startPosition,
                                                 track.GetMomentumDirection(),
-                                                0.0, 
+                                                0.0,
                                                 track.GetKineticEnergy(),
                                                 restMass,
                                                 track.GetVelocity(),
                                                 track.GetGlobalTime(), // Lab.
                                                 track.GetProperTime(), // Part.
                                                 &spin                  ) ;
-      if( currentMinimumStep > 0 ) 
+      if( currentMinimumStep > 0 )
       {
          // Do the Transport in the field (non recti-linear)
          //
          lengthAlongCurve = fFieldPropagator->ComputeStep( aFieldTrack,
-                                                           currentMinimumStep, 
+                                                           currentMinimumStep,
                                                            currentSafety,
                                                            track.GetVolume() ) ;
          fGeometryLimitedStep= lengthAlongCurve < currentMinimumStep;
@@ -364,7 +366,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
       // Remember last safety origin & value.
       //
       fPreviousSftOrigin = startPosition ;
-      fPreviousSafety    = currentSafety ;         
+      fPreviousSafety    = currentSafety ;
       // fpSafetyHelper->SetCurrentSafety( newSafety, startPosition);
 
       // Get the End-Position and End-Momentum (Dir-ection)
@@ -373,10 +375,10 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
 
       // Momentum:  Magnitude and direction can be changed too now ...
       //
-      fMomentumChanged         = true ; 
+      fMomentumChanged         = true ;
       fTransportEndMomentumDir = aFieldTrack.GetMomentumDir() ;
 
-      fTransportEndKineticEnergy  = aFieldTrack.GetKineticEnergy() ; 
+      fTransportEndKineticEnergy  = aFieldTrack.GetKineticEnergy() ;
 
       if( fFieldPropagator->GetCurrentFieldManager()->DoesFieldChangeEnergy() )
       {
@@ -396,10 +398,10 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
          //
          fEndGlobalTimeComputed = false;
 
-         // Check that the integration preserved the energy 
+         // Check that the integration preserved the energy
          //     -  and if not correct this!
          G4double  startEnergy= track.GetKineticEnergy();
-         G4double  endEnergy= fTransportEndKineticEnergy; 
+         G4double  endEnergy= fTransportEndKineticEnergy;
 
          static G4int no_inexact_steps=0, no_large_ediff;
          G4double absEdiff = std::fabs(startEnergy- endEnergy);
@@ -412,7 +414,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
          {
             if( std::fabs(startEnergy- endEnergy) > perThousand * endEnergy )
             {
-               static G4int no_warnings= 0, warnModulo=1,  moduloFactor= 10; 
+               static G4int no_warnings= 0, warnModulo=1,  moduloFactor= 10;
                no_large_ediff ++;
                if( (no_large_ediff% warnModulo) == 0 )
                {
@@ -447,7 +449,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
          // Correct the energy for fields that conserve it
          //  This - hides the integration error
          //       - but gives a better physical answer
-         fTransportEndKineticEnergy= track.GetKineticEnergy(); 
+         fTransportEndKineticEnergy= track.GetKineticEnergy();
       }
 
       fTransportEndSpin = aFieldTrack.GetSpin();
@@ -458,7 +460,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
    // If we are asked to go a step length of 0, and we are on a boundary
    // then a boundary will also limit the step -> we must flag this.
    //
-   if( currentMinimumStep == 0.0 ) 
+   if( currentMinimumStep == 0.0 )
    {
       if( currentSafety == 0.0 )  fGeometryLimitedStep = true ;
    }
@@ -466,7 +468,7 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
    // Update the safety starting from the end-point,
    // if it will become negative at the end-point.
    //
-   if( currentSafety < endpointDistance ) 
+   if( currentSafety < endpointDistance )
    {
       // if( particleCharge == 0.0 )
       //    G4cout  << "  Avoiding call to ComputeSafety : charge = 0.0 " << G4endl;
@@ -476,20 +478,20 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
          G4double endSafety =
             fLinearNavigator->ComputeSafety( fTransportEndPosition) ;
 
-         // EK, we have a new safety based upon the conventional step taken. This new 
+         // EK, we have a new safety based upon the conventional step taken. This new
          // safety should *not* be passed on to SingleScattering.
          // Therefore the following line has been commented out:
          //currentSafety      = endSafety ;
          fPreviousSftOrigin = fTransportEndPosition ;
-         //fPreviousSafety    = currentSafety ; 
+         //fPreviousSafety    = currentSafety ;
          fPreviousSafety = endSafety;// EK, effectively does the same thing
-         fpSafetyHelper->SetCurrentSafety( endSafety, fTransportEndPosition); 
+         fpSafetyHelper->SetCurrentSafety( endSafety, fTransportEndPosition);
             // EB: Original for 4.9.2:
             // EB: fpSafetyHelper->SetCurrentSafety( currentSafety, fTransportEndPosition);
-            // EB: It is meant to optimize calculation of safety. 
+            // EB: It is meant to optimize calculation of safety.
             // EB: As we are not copying endSafety into currentSafety the call is changed
-   
-         // Because the Stepping Manager assumes it is from the start point, 
+
+         // Because the Stepping Manager assumes it is from the start point,
          //  add the StepLength
          //
          // EK, also commented out:
@@ -503,8 +505,8 @@ G4double CADPhysicsTransportation::RealASGPIL( const G4Track&  track,
          G4cout << "  Adding endpoint distance " << endpointDistance
                 << "   to obtain pseudo-safety= " << currentSafety << G4endl ;
 #endif
-      }            
-   }            
+      }
+   }
 
    fParticleChange.ProposeTrueStepLength(geometryStepLength) ;
 
@@ -534,7 +536,7 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
    fParticleChange.Initialize(track) ;
 
    // EK, check if we're doing a 'conventional' step:
-   if (!fDoconventionalstep) 
+   if (!fDoconventionalstep)
    {
       // No conventional step. However, because this process is the first in line for the AlongStepDoIt calls,
       // the ParticleChange does need to be initalized. We simply enter all the particle properties at the beginning of the step.
@@ -549,7 +551,7 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
    }
    // EK, Conventional step: proceed with proposing the usual step parameters
 
-   //  Code for specific process 
+   //  Code for specific process
    //
    fParticleChange.ProposePosition(fTransportEndPosition) ;
    fParticleChange.ProposeMomentumDirection(fTransportEndMomentumDir) ;
@@ -612,26 +614,34 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
    //fParticleChange. ProposeTrueStepLength( track.GetStepLength() ) ;
 
    // If the particle is caught looping or is stuck (in very difficult
-   // boundaries) in a magnetic field (doing many steps) 
+   // boundaries) in a magnetic field (doing many steps)
    //   THEN this kills it ...
    //
    if ( fParticleIsLooping )
    {
       G4double endEnergy= fTransportEndKineticEnergy;
 
-      if( (endEnergy < fThreshold_Important_Energy) 
+      if( (endEnergy < fThreshold_Important_Energy)
          || (fNoLooperTrials >= fThresholdTrials ) ){
-         // Kill the looping particle 
+         // Kill the looping particle
          //
+         if(!output.is_open()) {
+           output.open ("Transportationout.dat");
+           output << std::setprecision(10);
+           output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                  << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                  << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+         }
+         output << CADPhysicsOutput::CADPhysicsOutput(track, stepData) << G4endl;
          fParticleChange.ProposeTrackStatus( fStopAndKill )  ;
 
          // 'Bare' statistics
-         fSumEnergyKilled += endEnergy; 
+         fSumEnergyKilled += endEnergy;
          if( endEnergy > fMaxEnergyKilled) { fMaxEnergyKilled= endEnergy; }
 
 #ifdef G4VERBOSE
-         if( (fVerboseLevel > 1) || 
-            ( endEnergy > fThreshold_Warning_Energy )  ) { 
+         if( (fVerboseLevel > 1) ||
+            ( endEnergy > fThreshold_Warning_Energy )  ) {
                G4cout << " CADPhysicsTransportation is killing track that is looping or stuck "
                   << G4endl
                   << "   This track has " << track.GetKineticEnergy() / MeV
@@ -641,10 +651,10 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
               << G4endl;
          }
 #endif
-         fNoLooperTrials=0; 
+         fNoLooperTrials=0;
       }
       else{
-         fNoLooperTrials ++; 
+         fNoLooperTrials ++;
 #ifdef G4VERBOSE
         if( (fVerboseLevel > 2) ){
           G4cout << "   CADPhysicsTransportation::AlongStepDoIt(): Particle looping -  "
@@ -655,11 +665,11 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
 #endif
       }
    }else{
-      fNoLooperTrials=0; 
+      fNoLooperTrials=0;
    }
 
    // Another (sometimes better way) is to use a user-limit maximum Step size
-   // to alleviate this problem .. 
+   // to alleviate this problem ..
 
    // Introduce smooth curved trajectories to particle-change
    //
@@ -673,14 +683,14 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
 //
 //  This ensures that the PostStep action is always called,
 //  so that it can do the relocation if it is needed.
-// 
+//
 
 G4double CADPhysicsTransportation::
 PostStepGetPhysicalInteractionLength( const G4Track&,
                             G4double, // previousStepSize
                             G4ForceCondition* pForceCond )
-{ 
-   *pForceCond = Forced ; 
+{
+   *pForceCond = Forced ;
    return DBL_MAX ;  // was kInfinity ; but convention now is DBL_MAX
 }
 
@@ -688,7 +698,7 @@ PostStepGetPhysicalInteractionLength( const G4Track&,
 //
 
 G4VParticleChange* CADPhysicsTransportation::PostStepDoIt( const G4Track& track,
-                                            const G4Step& )
+                                            const G4Step& step)
 {
    G4TouchableHandle retCurrentTouchable ;   // The one to return
 
@@ -702,8 +712,8 @@ G4VParticleChange* CADPhysicsTransportation::PostStepDoIt( const G4Track& track,
    // logically relocate the particle
 
    if(fGeometryLimitedStep)
-   {  
-      // fCurrentTouchable will now become the previous touchable, 
+   {
+      // fCurrentTouchable will now become the previous touchable,
       // and what was the previous will be freed.
       // (Needed because the preStepPoint can point to the previous touchable)
 
@@ -713,23 +723,31 @@ G4VParticleChange* CADPhysicsTransportation::PostStepDoIt( const G4Track& track,
          track.GetMomentumDirection(),
          fCurrentTouchableHandle,
          true                      ) ;
-      // Check whether the particle is out of the world volume 
+      // Check whether the particle is out of the world volume
       // If so it has exited and must be killed.
       //
       if( fCurrentTouchableHandle->GetVolume() == 0 )
       {
+         if(!output.is_open()) {
+           output.open ("Transportationout.dat");
+           output << std::setprecision(10);
+           output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                  << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                  << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+         }
+         output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
          fParticleChange.ProposeTrackStatus( fStopAndKill ) ;
       }
       retCurrentTouchable = fCurrentTouchableHandle ;
       fParticleChange.SetTouchableHandle( fCurrentTouchableHandle ) ;
    }
    else                 // fGeometryLimitedStep  is false
-   {                    
+   {
       // This serves only to move the Navigator's location
       //
       fLinearNavigator->LocateGlobalPointWithinVolume( track.GetPosition() ) ;
 
-      // The value of the track's current Touchable is retained. 
+      // The value of the track's current Touchable is retained.
       // (and it must be correct because we must use it below to
       // overwrite the (unset) one in particle change)
       // Although in general this is fCurrentTouchable, at the start of
@@ -737,7 +755,7 @@ G4VParticleChange* CADPhysicsTransportation::PostStepDoIt( const G4Track& track,
       //
       fParticleChange.SetTouchableHandle( track.GetTouchableHandle() ) ;
       retCurrentTouchable = track.GetTouchableHandle() ;
-   }         // endif ( fGeometryLimitedStep ) 
+   }         // endif ( fGeometryLimitedStep )
 
    const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume() ;
    const G4Material* pNewMaterial   = 0 ;
@@ -772,28 +790,22 @@ G4VParticleChange* CADPhysicsTransportation::PostStepDoIt( const G4Track& track,
    }
    fParticleChange.SetMaterialCutsCoupleInTouchable( pNewMaterialCutsCouple );
 
-   // temporarily until Get/Set Material of ParticleChange, 
-   // and StepPoint can be made const. 
+   // temporarily until Get/Set Material of ParticleChange,
+   // and StepPoint can be made const.
    // Set the touchable in ParticleChange
    // this must always be done because the particle change always
    // uses this value to overwrite the current touchable pointer.
    //
    fParticleChange.SetTouchableHandle(retCurrentTouchable) ;
 
-   // AT: Begin of addition to kill all non-primaries:
-   //if (track.GetTrackID()>1) {
-      //G4cout << "Killed particle with tracknr" << track.GetTrackID() << G4endl;
-   //   fParticleChange.ProposeTrackStatus(fStopAndKill);
-   //}
-   // AT: end of addition
 
    return &fParticleChange ;
 }
 
 // New method takes over the responsibility to reset the state of CADPhysicsTransportation
-//   object at the start of a new track or the resumption of a suspended track. 
+//   object at the start of a new track or the resumption of a suspended track.
 
-void 
+void
 CADPhysicsTransportation::StartTracking(G4Track* aTrack)
 {
    G4VProcess::StartTracking(aTrack);
@@ -803,7 +815,7 @@ CADPhysicsTransportation::StartTracking(G4Track* aTrack)
 
    // reset safety value and center
    //
-   fPreviousSafety    = 0.0 ; 
+   fPreviousSafety    = 0.0 ;
    fPreviousSftOrigin = G4ThreeVector(0.,0.,0.) ;
 
    // reset looping counter -- for motion in field
@@ -831,4 +843,3 @@ CADPhysicsTransportation::StartTracking(G4Track* aTrack)
    //
    fCurrentTouchableHandle = aTrack->GetTouchableHandle();
 }
-
