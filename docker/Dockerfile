@@ -12,11 +12,11 @@ RUN apt-get install -y \
         libexpat1-dev git vim screen
 
 WORKDIR /usr/src
-COPY geant4.10.02.p03.tar.gz .
-RUN tar xf geant4.10.02.p03.tar.gz
+COPY geant4.10.02.p02.tar.gz .
+RUN tar xf geant4.10.02.p02.tar.gz
 RUN        mkdir build \
         && cd build \
-        && cmake ../geant4.10.02.p03 \
+        && cmake ../geant4.10.02.p02 \
                 -DGEANT4_INSTALL_DATA=ON \
                 -DGEANT4_BUILD_MULTITHREADED=ON \
                 -DGEANT4_USE_GDML=ON \
@@ -24,7 +24,7 @@ RUN        mkdir build \
         && make install
 
 # Bug in Geant4 install script
-RUN cp geant4.10.02.p03/source/visualization/VRML/include/G4FRClient.hh /usr/local/include/Geant4/
+RUN cp geant4.10.02.p02/source/visualization/VRML/include/G4FRClient.hh /usr/local/include/Geant4/
 
 RUN /bin/bash -c "source /usr/local/bin/geant4.sh"
 
@@ -34,7 +34,6 @@ RUN        mkdir build-CAD \
         && cmake ../lowe-g4/CADPhysics \
         && make && make install
 
-RUN rm lowe-g4/SEM/src/G4PolyconeSide.cc
 RUN        mkdir build-SEM \
         && cd build-SEM \
         && cmake ../lowe-g4/SEM \
