@@ -38,4 +38,6 @@ RUN        mkdir build-SEM \
         && cd build-SEM \
         && cmake ../lowe-g4/SEM \
         && make && make install
-
+        
+RUN        ln -s /usr/local/bin/SEM_4.10.00 /usr/local/bin/SEM
+RUN        echo "source /usr/local/bin/geant4.sh" >> /etc/bash.bashrc
