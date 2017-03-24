@@ -46,20 +46,32 @@ This will start a simulation for alumina and a simulation for silicon as can be 
 # Setting up the simulation parameters
 What exactly is simulated can be set in the files present in `Examples/Transmission`. The sample material can be set in `run.sh` as mentioned before.
 In `YieldCurve.mac` the following can be set:
-* The amount of primary particles per energy. In the example this is set to 500 in order to have a quick run:
+
+The amount of primary particles per energy. In the example this is set to 500 in order to have a quick run:
+
     /control/alias NPE 500
-* The detectors can be set directional or not, if they are directional, the direction has to be set.
+
+The detectors can be set directional or not, if they are directional, the direction has to be set.
+
     /detectors/PlaneR/directional true
     /detectors/PlaneR/direction 0.0 0.0 1.0
-* In the example, the sample itself is also set as a detector, in this case multiple hits is enabled, so that the particles can be tracked inside the sample:
+
+In the example, the sample itself is also set as a detector, in this case multiple hits is enabled, so that the particles can be tracked inside the sample:
+
     /detectors/Sample/multipleHits true
-* The primary gun is placed in the geometry:
+
+The primary gun is placed in the geometry:
+
     /gps/pos/centre 0.0 0.0 0.0001 mm
-* The material of the sample is set to the material given in `run.sh`:
+
+The material of the sample is set to the material given in `run.sh`:
+
     /detectors/setmaterial LogSample {material}
-* And at last the energies for which the yield is simulated are set. The energy has to be given in eV:
+And at last the energies for which the yield is simulated are set. The energy has to be given in eV:
+
     /control/foreach mac/energy.mac energy 1250
-* Note that in the expample only one energy is given, if multiple energies are desired e.g. 500, 1000 and 1500 eV:
+Note that in the expample only one energy is given, if multiple energies are desired e.g. 500, 1000 and 1500 eV:
+
     /control/foreach mac/energy.mac energy 500 1000 1500
 
 The simulation geometry is defined in `BulkSample.gdml` and `YieldCurve.gdml`.
@@ -73,5 +85,6 @@ In `Pointsource.mac` the particle source is setup.
 It is also possible to set an energy window of the detectors (commented out in the example)
 The output files are also se in `energy.mac`. In the example, the yields of the reflection and transmission detector are set as output as well as the hits for both detectors and the sample.
 The hits of the sample can be used to reconstruct all electron tracks. If this is not necessary, the line
+
     /detectors/Sample/outputHits {directory}/EmissionSample_{material}_{energy}.dat
 can be commented out. In this case, the sample can also be removed from the detectorlist in `YieldCurve.mac`.
