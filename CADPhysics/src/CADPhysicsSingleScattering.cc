@@ -372,9 +372,15 @@ CADPhysicsDataCube* CADPhysicsSingleScattering::DInvMFPTableforSemi(const G4Mate
 
    G4double hbar_5 = pow((hbar_Planck/(joule*s)),5.);
    G4double e_mass_3 = pow(e_mass_kg,3.);
+<<<<<<< HEAD
    G4double nB = 1./(exp((hbar_Planck/(joule*s)*w_bz)/((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)))-1.); // number density
    G4double preconst2 = 4.*(2.*nB+1.)*e_mass_3*pow((defpotential/joule),2.) /
       (pi*hbar_5*w_bz*totaldensity*(meter3/kilogram)); // SI units
+=======
+   G4double nB = ((k_Boltzmann/(joule/kelvin))*(STP_Temperature/kelvin+25.)*lattice*(nanometer/meter)/(h_Planck/(joule*s)*soundvelocity)) - 1./2.; // Taylor expansion of number density (not allowed!)
+   G4double preconst2 = 2.*(2.*nB+1.)*e_mass_3*pow((defpotential/joule),2.)*lattice*(nanometer/meter) /
+      (pi*pi*hbar_5*soundvelocity*totaldensity*(meter3/kilogram)); // SI units
+>>>>>>> rewote calculation of preconstants for phonon scattering into equation form and corrected pi error in preconst2
    preconst2 = 1.e-6*(millimeter/meter)*(eV/joule)*preconst2; // G4 internal units and taking into account that the energy will be used in eV further down
    preconst2 = preconst2 * pi; // Multiply the preconst2 with pi to get the same result as in Fitting 2001
    // Constant prefactor for inverse mean free path at energy above EBZ
