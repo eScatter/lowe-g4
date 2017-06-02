@@ -11,10 +11,11 @@ CADPhysicsTrapping::CADPhysicsTrapping(const G4String& processName)
      : G4VContinuousDiscreteProcess(processName)
   {
     SetVerboseLevel(1);
-	traplength = DBL_MAX;
-  trap_C = 1./nanometer; // nm^-1 value for alumina according to Ganachaud
-  trap_g = 0.25/eV; // eV^-1 value for alumina according to Ganachaud
-  messenger = new CADPhysicsTrappingMessenger(this);
+	   traplength = DBL_MAX;
+     trap_C = 1./nanometer; // nm^-1 value for alumina according to Ganachaud
+     trap_g = 0.25/eV; // eV^-1 value for alumina according to Ganachaud
+     trap_output = false;
+     messenger = new CADPhysicsTrappingMessenger(this);
   }
 
 CADPhysicsTrapping::~CADPhysicsTrapping()
@@ -46,14 +47,16 @@ G4VParticleChange* CADPhysicsTrapping::PostStepDoIt(
 {
   // First thing to do: stop the particle.
   G4double kineticEnergy = track.GetKineticEnergy();
-  if(!output.is_open()) {
-    output.open ("trapout.dat");
-    output << std::setprecision(10);
-    output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
-           << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
-           << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+  if(trap_output) {
+    if(!output.is_open()) {
+      output.open ("trapout.dat");
+      output << std::setprecision(10);
+      output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+             << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+             << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+    }
+    output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
   }
-  output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
   aParticleChange.Initialize(track);
   aParticleChange.ProposeTrackStatus(fStopAndKill);
   aParticleChange.ProposeLocalEnergyDeposit(kineticEnergy);

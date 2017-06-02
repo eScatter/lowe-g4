@@ -7,6 +7,7 @@
 class CADPhysicsTrapping;
 class G4UIdirectory;
 class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithABool;
 
 #include "G4UImessenger.hh"
 #include "globals.hh"
@@ -29,6 +30,7 @@ private:
 	// The only user command
 	G4UIcmdWithADoubleAndUnit*	trap_C_Cmd;
 	G4UIcmdWithADoubleAndUnit*	trap_g_Cmd;
+  G4UIcmdWithABool*           outputCmd;
 };
 
 #endif

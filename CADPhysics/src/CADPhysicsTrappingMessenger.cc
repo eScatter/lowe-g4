@@ -5,6 +5,7 @@
 #include "CADPhysicsTrapping.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithABool.hh"
 #include "G4ios.hh"
 
 CADPhysicsTrappingMessenger::CADPhysicsTrappingMessenger(CADPhysicsTrapping * mpga)
@@ -28,6 +29,11 @@ CADPhysicsTrappingMessenger::CADPhysicsTrappingMessenger(CADPhysicsTrapping * mp
 	trap_g_Cmd->SetDefaultUnit("eV");
 	trap_g_Cmd->SetUnitCandidates("eV keV MeV GeV TeV");
 	trap_g_Cmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+  outputCmd = new G4UIcmdWithABool("/process/trapping/output",this);
+	outputCmd->SetGuidance("Generate the outputfile for the trapped electrons.");
+	outputCmd->SetParameterName("flg",false);
+	outputCmd->SetDefaultValue(false);
 }
 
 CADPhysicsTrappingMessenger::~CADPhysicsTrappingMessenger()
@@ -35,6 +41,7 @@ CADPhysicsTrappingMessenger::~CADPhysicsTrappingMessenger()
 	delete trap_C_Cmd;
   delete trap_g_Cmd;
 	delete trappingDir;
+  delete outputCmd;
 }
 
 void CADPhysicsTrappingMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
@@ -43,6 +50,8 @@ void CADPhysicsTrappingMessenger::SetNewValue(G4UIcommand * command,G4String new
 	{ target->SetTrap_C(trap_C_Cmd->GetNewDoubleValue(newValue)); }
   if( command==trap_g_Cmd )
 	{ target->SetTrap_g(trap_g_Cmd->GetNewDoubleValue(newValue)); }
+  if( command==outputCmd )
+	{ target->SetOutput(outputCmd->GetNewBoolValue(newValue)); }
 }
 
 //G4String CADPhysicsTrappingMessenger::GetCurrentValue(G4UIcommand * command)

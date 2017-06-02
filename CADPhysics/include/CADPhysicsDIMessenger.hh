@@ -35,6 +35,7 @@ private:
 	G4UIcmdWithAnInteger*		verboseCmd;
 	G4UIcmdWithADoubleAndUnit*	energycutCmd;
 	G4UIcommand*				resetcounterCmd;
+  G4UIcmdWithABool*           outputCmd;
 };
 
 #endif
