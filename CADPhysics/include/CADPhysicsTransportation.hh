@@ -45,6 +45,7 @@
 #include "G4FieldManager.hh"
 
 #include "CADPhysicsUnits.hh"
+#include "CADPhysicsTransportationMessenger.hh"
 
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
@@ -131,6 +132,7 @@ public:  // with description
    inline void EnableShortStepOptimisation(G4bool optimise=true);
    // Whether short steps < safety will avoid to call Navigator (if field=0)
 
+   inline void SetOutput(G4bool kl) {transportation_output=kl;}// Method (called by the messenger) to set transportation_output
 
 public:  // without description
 
@@ -158,6 +160,8 @@ protected:
 
 private:
    static CADPhysicsTransportation* fTransportationInstance;//the instance
+
+   CADPhysicsTransportationMessenger* messenger;
 
    G4Navigator*         fLinearNavigator;
    G4PropagatorInField* fFieldPropagator;
@@ -244,6 +248,8 @@ private:
        // the current run is aborted so that the user can fix the matter.
 
    // EK, end of addition
+
+   G4bool transportation_output;
 
    // for the output of the absorbed electrons
    std::ofstream output;

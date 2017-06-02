@@ -152,6 +152,8 @@ public:
       pairsgenerated = 0;
    }
 
+   inline void SetOutput(G4bool kl) {DI_output=kl;}// Method (called by the messenger) to set DI_output
+
 private:
    // Hiding the assignment operator and the copy constructor as private,
    // since it doesn't make sense to have multiple instances of this class
@@ -291,6 +293,9 @@ private:
    G4bool killthisone;
       // Boolean set by GetMeanFreePath that tells PostStepDoIt to kill the
       // particle in case its energy has fallen below the energy limit.
+
+   G4bool DI_output; // Boolean to set whether all absorbed electrons are
+      // written to file
 
    // Specific for Auger/X-ray generation
    G4CrossSectionHandler* crossSectionHandler;

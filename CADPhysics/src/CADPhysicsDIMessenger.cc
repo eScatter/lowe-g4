@@ -56,6 +56,11 @@ CADPhysicsDIMessenger::CADPhysicsDIMessenger(CADPhysicsDI * mpga)
 	resetcounterCmd = new G4UIcommand("/process/di/resetcounter",this);
 	resetcounterCmd->SetGuidance("Print the number of electron/hole pairs generated so far and reset the counter.");
 
+  outputCmd = new G4UIcmdWithABool("/process/di/output",this);
+  outputCmd->SetGuidance("Generate the outputfile for the trapped electrons.");
+  outputCmd->SetParameterName("flg",false);
+  outputCmd->SetDefaultValue(false);
+
 }
 
 CADPhysicsDIMessenger::~CADPhysicsDIMessenger()
@@ -68,6 +73,7 @@ CADPhysicsDIMessenger::~CADPhysicsDIMessenger()
 	delete DIDir;
 	delete energycutCmd;
 	delete resetcounterCmd;
+  delete outputCmd;
 }
 
 void CADPhysicsDIMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
@@ -86,13 +92,15 @@ void CADPhysicsDIMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
 	{ target->SetEnergyCut(energycutCmd->GetNewDoubleValue(newValue)); }
 	if( command==resetcounterCmd )
 	{ target->ResetCounter();}
+  if( command==outputCmd )
+	{ target->SetOutput(outputCmd->GetNewBoolValue(newValue)); }
 
 }
 
 G4String CADPhysicsDIMessenger::GetCurrentValue(G4UIcommand * command)
 {
 	// Uses the 'get' methods of CADPhysicsDI to print the current values of the given parameters.
-	// These can be accessed by replacing the first '/' by a question mark; e.g. '?process/di/verbose' to 
+	// These can be accessed by replacing the first '/' by a question mark; e.g. '?process/di/verbose' to
 	// request the current verbosity level of the process.
 	G4String cv;
 	if( command==secondariesCmd )

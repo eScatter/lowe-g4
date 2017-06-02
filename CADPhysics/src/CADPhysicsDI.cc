@@ -87,6 +87,7 @@ crossSectionHandler(0)
    deexcitation.ActivateAugerElectronProduction(true);
 
    killthisone = false;
+   DI_output = false;
 }
 
 CADPhysicsDI::~CADPhysicsDI()
@@ -833,14 +834,16 @@ G4VParticleChange* CADPhysicsDI::Phononloss( const G4Track& track,
         (finalKinEnergy < 1.*keV && pstepsafety > 5.*electronrange) ) {
       // Too low remaining energy, kill the particle.
       //theEnergyDeposit += finalKinEnergy - ffermienergy;
-      if(!output.is_open()) {
-        output.open ("DIout.dat");
-        output << std::setprecision(10);
-        output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
-               << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
-               << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+      if(DI_output) {
+        if(!output.is_open()) {
+          output.open ("DIout.dat");
+          output << std::setprecision(10);
+          output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                 << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                 << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+          }
+          output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
       }
-      output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
       theEnergyDeposit += finalKinEnergy;
       // EB: commented out this line as small negative deposits can happen
       //if(theEnergyDeposit<0.) theEnergyDeposit = 0.;
@@ -862,14 +865,16 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // Kill the particle if flagged by GetMeanFreePath (through boolean killthisone)
    // and also redo the energy check (see GetMeanFreePath for details)
    if (killthisone || kineticEnergy<fenergylimit) {
-      if(!output.is_open()) {
-        output.open ("DIout.dat");
-        output << std::setprecision(10);
-        output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
-               << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
-               << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+      if(DI_output) {
+        if(!output.is_open()) {
+          output.open ("DIout.dat");
+          output << std::setprecision(10);
+          output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                 << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                 << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+          }
+          output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
       }
-      output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
       aParticleChange.ProposeTrackStatus(fStopAndKill);// Change the particle status
       aParticleChange.ProposeEnergy(0.);// Set energy to zero
       // Treat the remaining kinetic energy as 'deposited locally'
@@ -1157,7 +1162,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // This part of the code has been derived from that of
    // G4LowEnergyIonisation.
    // 2017-02-03: modification for non-inner-shell secondaries. Momentum transfer from the primary
-   // for plasmon excitations is only (by definition) equivalent to omega-omegaprime. deltaKinE 
+   // for plasmon excitations is only (by definition) equivalent to omega-omegaprime. deltaKinE
    // modified accordingly. N.B. - to be done: look also into mom. dist. of the secondary. For now,
    // there is no theoretical basis to assume a certain distribution, so we just leave as is.
 
@@ -1370,14 +1375,16 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
       theEnergyDeposit += finalKinEnergy;
          // EB: No longer Taken relative to the Fermi level.
       finalKinEnergy    = 0.0;
-      if(!output.is_open()) {
-        output.open ("DIout.dat");
-        output << std::setprecision(10);
-        output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
-               << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
-               << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+      if(DI_output) {
+        if(!output.is_open()) {
+          output.open ("DIout.dat");
+          output << std::setprecision(10);
+          output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                 << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                 << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+        }
+        output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
       }
-      output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
       aParticleChange.ProposeTrackStatus(fStopAndKill);
    }
 

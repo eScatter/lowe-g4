@@ -3,6 +3,7 @@
 // See CADPhysicsTransportation.hh for class info and the standard Geant4 disclaimer.
 
 #include "CADPhysicsTransportation.hh"
+#include "CADPhysicsTransportationMessenger.hh"
 #include "CADPhysicsSingleScattering.hh"
 #include "CADPhysicsOutput.hh"
 #include "G4ProductionCutsTable.hh"
@@ -65,6 +66,8 @@ CADPhysicsTransportation::CADPhysicsTransportation( G4int verboseLevel )
   fselection = new G4GPILSelection();
   asgpildone = false;
   // EK: end of addition
+  transportation_output = false;
+  messenger = new CADPhysicsTransportationMessenger(this);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -625,14 +628,16 @@ G4VParticleChange* CADPhysicsTransportation::AlongStepDoIt( const G4Track& track
          || (fNoLooperTrials >= fThresholdTrials ) ){
          // Kill the looping particle
          //
-         if(!output.is_open()) {
-           output.open ("Transportationout.dat");
-           output << std::setprecision(10);
-           output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
-                  << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
-                  << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+         if(transportation_output) {
+           if(!output.is_open()) {
+             output.open ("Transportationout.dat");
+             output << std::setprecision(10);
+             output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                    << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                    << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+           }
+           output << CADPhysicsOutput::CADPhysicsOutput(track, stepData) << G4endl;
          }
-         output << CADPhysicsOutput::CADPhysicsOutput(track, stepData) << G4endl;
          fParticleChange.ProposeTrackStatus( fStopAndKill )  ;
 
          // 'Bare' statistics
@@ -728,14 +733,16 @@ G4VParticleChange* CADPhysicsTransportation::PostStepDoIt( const G4Track& track,
       //
       if( fCurrentTouchableHandle->GetVolume() == 0 )
       {
-         if(!output.is_open()) {
-           output.open ("Transportationout.dat");
-           output << std::setprecision(10);
-           output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
-                  << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
-                  << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+         if(transportation_output) {
+           if(!output.is_open()) {
+             output.open ("Transportationout.dat");
+             output << std::setprecision(10);
+             output << "EventID\tTrackID\tEtotal (eV)\tEkin (eV)"
+                    << "\tx (nm)\ty (nm)\tz (nm)\txOrigin (nm)\tyOrigin (nm)\tzOrigin (nm)\tx-direction (nm)\ty-direction (nm)\tz-direction (nm)"
+                    << "\tMax Depth (nm)\tMax Radius (nm)" << G4endl;
+           }
+           output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
          }
-         output << CADPhysicsOutput::CADPhysicsOutput(track, step) << G4endl;
          fParticleChange.ProposeTrackStatus( fStopAndKill ) ;
       }
       retCurrentTouchable = fCurrentTouchableHandle ;

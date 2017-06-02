@@ -52,6 +52,7 @@ public:
 
 	inline void SetTrap_C(G4double kl) {trap_C=1./kl;}// Method (called by the messenger) to set trap_C
 	inline void SetTrap_g(G4double kl) {trap_g=1./kl;}// Method (called by the messenger) to set trap_g
+  inline void SetOutput(G4bool kl) {trap_output=kl;}// Method (called by the messenger) to set trap_output
 //	inline G4double GetLength() {return traplength;}// Corresponding 'get' method
 
 private:
@@ -63,6 +64,8 @@ private:
 	G4double traplength;
 	G4double trap_C;
 	G4double trap_g;
+
+  G4bool trap_output;
 
 	std::ofstream output;
 
