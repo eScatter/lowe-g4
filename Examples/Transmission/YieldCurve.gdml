@@ -8,8 +8,8 @@
   <variable name="WD" value="0.0" />         <!-- (mm)  Working distance -->
   <variable name="TiltAngle" value="0.0" /> <!--- (deg) Tilt angle -->
 
-  <position name="PosSample" unit="mm" x="0" y="0" z="(-WD)" /> <!-- Top of sample is at z= -WD --> 
-  <rotation name="RotSample" unit="degree" x="0.0" y="(-1.0*TiltAngle)" z="0.0" /> 
+  <position name="PosSample" unit="mm" x="0" y="0" z="(-WD)" /> <!-- Top of sample is at z= -WD -->
+  <rotation name="RotSample" unit="degree" x="0.0" y="(-1.0*TiltAngle)" z="0.0" />
 
   <position name="center"/>
   <rotation name="identity"/>
@@ -20,7 +20,7 @@
   </materials>
 
   <solids>
-   <box aunit="radian" lunit="mm" name="worldBox" x="100.0" y="100.0" z="500.0"/> 
+   <box aunit="radian" lunit="mm" name="worldBox" x="100.0" y="100.0" z="500.0"/>
   </solids>
 
   <structure>
@@ -41,7 +41,7 @@
   <detectorlist>
    <detector name="PlaneR" type="plane" volume="LogPlaneR" />
    <detector name="PlaneT" type="plane" volume="LogPlaneT" />
-   <detector name="Sample" type="plane" volume="LogSample" />
+   <!-- <detector name="Sample" type="plane" volume="LogSample" /> -->
   </detectorlist>
 </extension>
 
