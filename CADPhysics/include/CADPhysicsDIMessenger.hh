@@ -30,10 +30,7 @@ private:
 	// User commands
 	G4UIcmdWithABool*			secondariesCmd;
 	G4UIcmdWithABool*			xrayCmd;
-	G4UIcmdWithABool*			augerCmd;
-	G4UIcmdWithABool*			rangecutCmd;
 	G4UIcmdWithAnInteger*		verboseCmd;
-	G4UIcmdWithADoubleAndUnit*	energycutCmd;
 	G4UIcommand*				resetcounterCmd;
   G4UIcmdWithABool*           outputCmd;
 };

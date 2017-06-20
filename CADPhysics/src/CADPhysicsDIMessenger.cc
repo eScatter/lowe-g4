@@ -24,16 +24,6 @@ CADPhysicsDIMessenger::CADPhysicsDIMessenger(CADPhysicsDI * mpga)
 	xrayCmd->SetParameterName("flg",true);
 	xrayCmd->SetDefaultValue(true);
 
-	augerCmd = new G4UIcmdWithABool("/process/di/auger",this);
-	augerCmd->SetGuidance("Generate Auger electrons in DI.");
-	augerCmd->SetParameterName("flg",true);
-	augerCmd->SetDefaultValue(true);
-
-	rangecutCmd = new G4UIcmdWithABool("/process/di/rangecut",this);
-	rangecutCmd->SetGuidance("Switch for application of the range cut in DI.");
-	rangecutCmd->SetParameterName("flg",true);
-	rangecutCmd->SetDefaultValue(true);
-
 	verboseCmd = new G4UIcmdWithAnInteger("/process/di/verbose",this);
 	verboseCmd->SetGuidance("Verbosity level of CADPhysicsDI.");
 	verboseCmd->SetGuidance("0 - silent except for essential warning messages");
@@ -44,14 +34,6 @@ CADPhysicsDIMessenger::CADPhysicsDIMessenger(CADPhysicsDI * mpga)
 	verboseCmd->SetParameterName("level",true);
 	verboseCmd->SetRange("level>=0");
 	verboseCmd->SetDefaultValue(1);
-
-	energycutCmd = new G4UIcmdWithADoubleAndUnit("/process/di/energycut",this);
-	energycutCmd->SetGuidance("Lowest allowable energy (rel. to vacuum) for an electron in a liquid/solid.");
-	energycutCmd->SetGuidance("Negative values allow electrons to be tracked even if they have too low energy");
-	energycutCmd->SetGuidance("to escape into vacuum.");
-	energycutCmd->SetParameterName("e",true);
-	energycutCmd->SetDefaultValue(0.);
-	energycutCmd->SetDefaultUnit("MeV");
 
 	resetcounterCmd = new G4UIcommand("/process/di/resetcounter",this);
 	resetcounterCmd->SetGuidance("Print the number of electron/hole pairs generated so far and reset the counter.");
@@ -67,11 +49,8 @@ CADPhysicsDIMessenger::~CADPhysicsDIMessenger()
 {
 	delete secondariesCmd;
 	delete xrayCmd;
-	delete augerCmd;
-	delete rangecutCmd;
 	delete verboseCmd;
 	delete DIDir;
-	delete energycutCmd;
 	delete resetcounterCmd;
   delete outputCmd;
 }
@@ -82,14 +61,8 @@ void CADPhysicsDIMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
 	{ target->SetGenerateSecondaries(secondariesCmd->GetNewBoolValue(newValue)); }
 	if( command==xrayCmd )
 	{ target->SetGenerateXrays(xrayCmd->GetNewBoolValue(newValue)); }
-	if( command==augerCmd )
-	{ target->SetGenerateAugers(augerCmd->GetNewBoolValue(newValue)); }
-	if( command==rangecutCmd )
-	{ target->SetRangeCut(rangecutCmd->GetNewBoolValue(newValue)); }
 	if( command==verboseCmd )
 	{ target->SetVerboseLevel(verboseCmd->GetNewIntValue(newValue)); }
-	if( command==energycutCmd )
-	{ target->SetEnergyCut(energycutCmd->GetNewDoubleValue(newValue)); }
 	if( command==resetcounterCmd )
 	{ target->ResetCounter();}
   if( command==outputCmd )
@@ -107,14 +80,8 @@ G4String CADPhysicsDIMessenger::GetCurrentValue(G4UIcommand * command)
 	{ cv = secondariesCmd->ConvertToString(target->GetGenerateSecondaries()); }
 	if( command==xrayCmd )
 	{ cv = xrayCmd->ConvertToString(target->GetGenerateXrays()); }
-	if( command==augerCmd )
-	{ cv = augerCmd->ConvertToString(target->GetGenerateAugers()); }
-	if( command==rangecutCmd )
-	{ cv = rangecutCmd->ConvertToString(target->GetRangeCut()); }
 	if( command==verboseCmd )
 	{ cv = verboseCmd->ConvertToString(target->GetVerboseLevel()); }
-	if( command==energycutCmd )
-	{ cv = energycutCmd->ConvertToString(target->GetEnergyCut()); }
-
+  
 	return cv;
 }

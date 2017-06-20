@@ -20,6 +20,10 @@
 #include "G4DataVector.hh"
 #include "CADPhysicsAtomicDeexcitation.hh"
 
+// for read in hdf5
+#include <csread/material.h>
+#include <csread/units/unit_system.h>
+
 typedef std::vector<G4DataVector*> CADPhysicsDataTable;
 
 class CADPhysicsDIMessenger;
@@ -36,6 +40,9 @@ public:
 
    G4bool IsApplicable ( const G4ParticleDefinition& );
       // Return whether the current process is relevant to the given particle
+
+   void load_material(std::string const & filename, double high_energy, size_t N_K, size_t N_P);
+   void load_vacuum();
 
    void BuildPhysicsTable(const G4ParticleDefinition& aParticleType);
       // This function overloads the corresponding virtual function
@@ -114,37 +121,6 @@ public:
       return generateXrays;
    }
 
-   inline void SetGenerateAugers(G4bool genauger) {
-      // Method to determine whether Auger electrons should be generated.
-      generateAugers = genauger;
-      deexcitation.ActivateAugerElectronProduction(generateAugers);
-   }
-
-   inline G4bool GetGenerateAugers() {
-      // Corresponding 'get' method (invoked by the Messenger)
-      return generateAugers;
-   }
-
-   inline void SetRangeCut(G4bool rc) {
-      // Method to determine whether 'range cut' simulation speedup method should be applied
-      rangecut = rc;
-   }
-   inline G4bool GetRangeCut() {
-      // Corresponding 'get' method (invoked by the Messenger)
-      return rangecut;
-   }
-
-   inline void SetEnergyCut(G4double ec){
-      // Method to set minimum energy for scattered and secondary electrons
-      cutenergy = ec;
-      if (ec>0.) energycut = true; else energycut = false;
-   }
-
-   inline G4double GetEnergyCut() {
-      // Corresponding 'get' method (invoked by the Messenger)
-      return cutenergy;
-   }
-
    inline void ResetCounter() {
       // Method called from the Messenger for counting generated secondary electrons
       // (for debugging purposes)
@@ -165,40 +141,6 @@ private:
       // Fill the enrange, Psecenergies and Psecvalues vectors. Invoked at initialization
       // (by the BuildPhysicsTable method).
 
-   G4String GetdfFileForMaterial(const G4String &materialName);
-      // Check existence of a df file with name "../CADPhysics/df/df_"+materialName. i
-      // Invoked by ReadEpsilonFile.
-
-   G4bool ExistsFileForMaterial(const G4String &materialName);
-      // Check existence of a file with name materialName. Invoked by ExistsdfFileForMaterial.
-
-   void ReadEpsilonFile(const G4String& materialName,
-      const G4String& materialFormula,
-      G4bool isgas,
-      G4double barrier);
-      // Read a material's inner shell energies and energy loss function from file
-
-   void InterpolateEpsilon();
-      // Interpolate the energy loss function to the 'standard' energy values stored in enrange
-
-   void CalculateCDCS (CADPhysicsDataTable* cdcs,
-      G4DataVector* csv,
-      G4double fermiEnergy,
-      G4double work);
-      // Calculate the Cumulative Differential Cross Section and the electron's range as a function
-      // of energy
-
-   G4double GetRange(G4int index, G4double kineticEnergy);
-      // Get the electron's range from the tabulated data
-
-   void TabulateL();
-      // Tabulate values of the 'L' and 'Lprim' functions that are used by CalculateCDCS
-      // See Ashley eq. (20) the non-exchange corrected definition of L, and also see further
-      // notes in the code.
-
-   G4int FindIntLogen(G4double kineticEnergy);
-      // Return the number of the energy bin that kineticEnergy is in
-
    G4VParticleChange* Phononloss(const G4Track& aTrack,
       const G4Step& aStep,
       G4double kinenergy,
@@ -208,85 +150,44 @@ private:
    // Data members:
    CADPhysicsDIMessenger* messenger;
 
-   G4double LowestKineticEnergy;
-      // Lowest energy value in enrange
-   G4double HighestKineticEnergy;
-      // Highest energy value in enrange
-   G4int    TotBin;
-      // Number of values in enrange
-
    // Material-independent data
-   G4DataVector enrange;
-      // Energy values for internally generated tabulated data
    G4DataVector Psecenergies;
       // Energy fraction values for tabulated data used for excitation of Fermi sea electron
    G4DataVector Psecvalues;
       // Tabulated function used for excitation of Fermi sea electron
-   G4DataVector L;
-      // 'L' function
-   G4DataVector LPrim;
-      // Idem, for inner-shell ionization events
-
-   // Data for a specific material (used only during initialization)
-   G4DataVector readepsenergies;
-      // Energy values of the energy loss function file
-   G4DataVector readepsdata;
-      // Corresponding energy loss function values
-   G4DataVector tmfpenergies;
-      // Energy values of the 'tmfp' file
-   G4DataVector tmfpdata;
-      // Corresponding data values
-   G4DataVector* imeps;
-      // The energy loss function
 
    // Vectors that contain data for all materials (used during simulations)
-   CADPhysicsDataTable* rangetable;
-      // Contains for each material the electron range as a function of energy
-   CADPhysicsDataTable* innershelltable;
-      // Contains for each material a list of inner shell energies
-   std::vector<G4bool> innershells;
-      // Per material, a boolean to state whether it has any inner shell energies
+   //CADPhysicsDataTable* outershelltable;
+      // Contains for each material a list of outer shell energies
+   std::vector<G4bool> outershells;
+      // Per material, a boolean to state whether it has any outer shell energies
    std::vector<G4double> vec_fermieff;
       // Fermi energy per material
-   std::vector<G4double> vec_minimumlimit;
-      // Lowest kinetic energy limit allowable for the material
    std::vector<G4double> vec_bandgap;
       // Bandgap per material
    std::vector<G4double> vec_barrier;
       // Vacuum potential barrier per material
-   std::vector<G4int> vec_conductortype;
+   std::vector<typename material::conductor_type_t> vec_conductortype;
       // Conductortype per material (0=metal, 1=semiconductor, 2=insulator)
-   CADPhysicsDataTable* lambdatable;
-      // Table containing inverse mfp values
-   std::vector<CADPhysicsDataTable*>* difflambdatable;
-      // Differential (for omega prime) inverse mfp values
 
-   G4double cross;
-      // Cross section as calculated in GetMeanFreePath and reused in PostStepDoIt
+   std::vector<imfp_table<float>> inelastic_imfp_vector;
+   std::vector<icdf_table<float>> inelastic_icdf_vector;
+   std::vector<imfp_table<float>> elastic_imfp_vector;
+   std::vector<icdf_table<float>> elastic_icdf_vector;
+   std::vector<ionization_table<float>> ionization_icdf_vector;
+   std::vector<std::vector<float>> outershelltable;
 
    G4int    findex;
-   G4double fenergy;
    G4double ffermienergy;
-      // stored values of index, energy and lambda for use in GetMeanFreePath
-   G4double fenergylimit;
-      // Local value of the energy limit corrected for the material's barrier energy wrt vacuum
-   G4double flambda;
+      // stored values of index and energy for use in GetMeanFreePath
    G4double fbarrier;
-   G4int    fconductortype;
+   //G4String    fconductortype;
 
    // Variables controlled by the Messenger (via their Set methods)
    G4bool generateSecondaries;
       // Determines whether secondaries are generated.
    G4bool generateXrays;
       // Determines whether X ray photons are generated.
-   G4bool generateAugers;
-      // Determines whether Auger electrons are generated.
-   G4bool rangecut;
-      // Determines whether to apply the 'range cut' to speed up simulations.
-   G4bool energycut;
-      // Determines whether to apply an energy limit to the primary and secondary electrons.
-   G4double cutenergy;
-      // The corresponding value of the energy cut (in vacuum)
    G4int pairsgenerated;
       // Counter for the number of secondary electrons created.
 
