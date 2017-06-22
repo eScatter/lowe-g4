@@ -9,20 +9,20 @@ and instead of your materials definitions include the following:
 	 </materials>
 -->
 <!-- See the separate document SEMmaterialrefs.rtf, which can be found in the CAD/CADPhysics folder,
-	for references to the sources of the physical data in this file. 
+	for references to the sources of the physical data in this file.
 -->
  <!-- Default for 'vacuum' -->
   <material Z="1" formula=" " name="Galactic" workfunction="0.0" fermienergy="0.0">
    <D value="1.001e-25" />
    <atom value="1.01" />
   </material>
- <!-- Artificial material absorbing all particles --> 
+ <!-- Artificial material absorbing all particles -->
   <material Z="1" formula=" " name="BlackHole" workfunction="0.0" fermienergy="0.0">
    <D value="1.001e-25" />
    <atom value="1.01" />
   </material>
  <!-- Elements -->
-  <material Z="47" formula="Ag" name="Silver" workfunction="4.63" fermienergy="7.61" 
+  <material Z="47" formula="Ag" name="Silver" workfunction="4.63" fermienergy="7.61"
     resistivity="1.59e-8" >
    <D value="10.49" />
    <atom value="107.87" />
@@ -31,20 +31,20 @@ and instead of your materials definitions include the following:
    <D value="2.70" />
    <atom value="26.98" />
   </element>
-  <material Z="13" formula="Al" name="Aluminum" workfunction="4.17" fermienergy="11.07" 
+  <material Z="13" formula="Al" name="Aluminum" workfunction="4.17" fermienergy="11.07"
     resistivity="2.65e-8">
    <D value="2.70" />
    <atom value="26.98" />
   </material>
   <element Z="33" formula="As" name="Arsenic"> <!-- Only for compounds -->
    <atom value="74.922"/>
-  </element>  
+  </element>
   <element Z="1" formula="H" name="Hydrogen" >
-   <atom value="1.0079" /> 
+   <atom value="1.0079" />
   </element>
   <element Z="6" formula="C" name="Carbon"> <!-- Only for compounds -->
    <atom value="12.011"/>
-  </element>  
+  </element>
   <element Z="8" formula="O" name="Oxygen" >
    <D value="0.0013" />
    <atom value="16.0" />
@@ -61,13 +61,13 @@ and instead of your materials definitions include the following:
     resistivity="2.44e-8" >
    <D value="19.3" />
    <atom value="196.97" />
-  </material> 
+  </material>
   <material Z="79" formula="Au" name="GalacticGold" workfunction="5.38" fermienergy="9.11"
     resistivity="2.44e-8" >
    <D value="19.3" />
    <atom value="196.97" />
-  </material> 
-  <material formula="C" name="Epoxy" workfunction="4.6" fermienergy="8.64" conductortype="semi"  bandgap="0." 
+  </material>
+  <material formula="C" name="Epoxy" workfunction="4.6" fermienergy="8.64" conductortype="semi"  bandgap="0."
    soundvelocity="21000.0" defpotential="16.0" lattice="0.24">
    <D value="1.22" />
    <composite ref="Hydrogen" n="53" />
@@ -92,18 +92,18 @@ and instead of your materials definitions include the following:
     soundvelocity="21000." defpotential="16." lattice="0.24">
    <D value="1.47" /> <!-- for the GlassyCarbon parameters we have taken the same values as for Graphite -->
    <atom value="12.01" />
-  </material>  
+  </material>
  <material Z="6" formula="C" name="Graphite" workfunction="4.6" fermienergy="8.64"
     conductortype="semi" bandgap="0."
     soundvelocity="21000." defpotential="16." lattice="0.24">
    <D value="2.27" />
    <atom value="12.01" />
-  </material>  
+  </material>
   <material Z="24" formula="Cr" name="Chromium"  workfunction="4.5" fermienergy="7.25"
     resistivity="1.27e-7" >
    <D value="7.14" />
    <atom value="52.0" />
-  </material>  
+  </material>
 <!--  ORIGINAL
    <material Z="29" formula="Cu" name="Copper"  workfunction="4.65" fermienergy="7.57"
     resistivity="1.68e-8" >
@@ -118,19 +118,19 @@ and instead of your materials definitions include the following:
   </material>
   <element Z="31" formula="Ga" name="Gallium"> <!-- Only for compounds -->
    <atom value="69.723"/>
-  </element>  
+  </element>
   <material Z="32" formula="Ge" name="Germanium" fermienergy="10.3" affinity="4.0"
    bandgap="0.66" conductortype="semi"
    soundvelocity="4180." defpotential="9.2"  lattice="0.566">
    <D value="5.32" />
    <atom value="72.64" />
-  </material>  
+  </material>
   <material Z="26" formula="Fe" name="Iron" workfunction="4.74" fermienergy="7.76"
     resistivity="9.71e-8">
    <D value="7.87" />
    <atom value="55.845" />
   </material>
-  <material Z="42" formula="Mo" name="Molybdenum"  workfunction="4.57" fermienergy="6.71" 
+  <material Z="42" formula="Mo" name="Molybdenum"  workfunction="4.57" fermienergy="6.71"
      resistivity="5.7e-8" >
    <D value="10.28" />
    <atom value="95.94" />
@@ -143,7 +143,7 @@ and instead of your materials definitions include the following:
   </isotope>
   <material formula="H2" name="Hydrogengas" >
     <D value="0.00008988" />
-    <composite ref="Hydrogen" n="2" />  
+    <composite ref="Hydrogen" n="2" />
   </material>
   <element Z="49" formula="In" name="Indium" > <!-- Only for compounds -->
    <atom value="114.818"/>
@@ -177,20 +177,20 @@ and instead of your materials definitions include the following:
    <atom value="195.08" />
   </material>
   <element Z="14" formula="Si" name="Silicon" >
-   <D value="2.33" />
-   <atom value="28.1" />
+   <D value="2.3290" />
+   <atom value="28.0855" />
   </element>
-  <material Z="14" formula="Si" name="Silicon" workfunction="4.79" fermienergy="7.83"
+  <material Z="14" formula="Si" name="Silicon" fermienergy="7.83"
    affinity="4.05" bandgap="1.12" conductortype="semi"
-   soundvelocity="9040." defpotential="9.2"  lattice="0.543">
+   soundvelocity="6490." defpotential="4.14"  lattice="0.5430710">
   <!-- ac. deformation potential from Numerical Data & Functional Relationships in Science and Technology (Springer);
        Vol. III/17a Semiconductors: Physics of Group IV Elements and III-V Compounds. See also
        M.V.Fischetti and S.E.Laux, Phys.Rev.B 48(4) 2244-74, 1993. original affinity: 4.05-->
-   <D value="2.33" />
-   <atom value="28.1" />
+   <D value="2.3290" />
+   <atom value="28.0855" />
   </material>
-  <material Z="50" formula="Sn" name="Tin" workfunction="4.42" fermienergy="10.2" 
-    resistivity="1.1e-7" > 
+  <material Z="50" formula="Sn" name="Tin" workfunction="4.42" fermienergy="10.2"
+    resistivity="1.1e-7" >
    <D value="7.31" />
    <atom value="118.71" />
   </material>
@@ -198,7 +198,7 @@ and instead of your materials definitions include the following:
    <D value="16.7" />
    <atom value="180.95" />
   </element>
-  <material Z="73" formula="Ta" name="Tantalum" workfunction="4.25" fermienergy="5.31" 
+  <material Z="73" formula="Ta" name="Tantalum" workfunction="4.25" fermienergy="5.31"
     resistivity="1.3e-7" > <!-- fermi en. is just a guess based on atom density -->
    <D value="16.7" />
    <atom value="180.95" />
@@ -207,12 +207,12 @@ and instead of your materials definitions include the following:
    <D value="4.507" />
    <atom value="47.867" />
   </element>
-  <material Z="22" formula="Ti" name="Titanium" workfunction="4.33" fermienergy="8.54" 
+  <material Z="22" formula="Ti" name="Titanium" workfunction="4.33" fermienergy="8.54"
    resistivity="4.0e-7" >
    <D value="4.507" />
    <atom value="47.867" />
   </material>
-  <material Z="74" formula="W" name="Tungsten" workfunction="4.55" fermienergy="6.89" 
+  <material Z="74" formula="W" name="Tungsten" workfunction="4.55" fermienergy="6.89"
     resistivity="5.6e-8">
    <D value="19.25" />
    <atom value="183.83" />
@@ -225,7 +225,7 @@ and instead of your materials definitions include the following:
   </material>
   <material formula="Al2O3" name="Alumina" affinity="9.3" bandgap="7.0" conductortype="insulator"
     soundvelocity="8010." defpotential="13."  lattice="0.476"> <!-- original affinity="1." -->
-   <D value="3.98" /> 
+   <D value="3.98" />
    <composite ref="Aluminum" n="2" />
    <composite ref="Oxygen" n="3" />
   </material>
@@ -234,13 +234,13 @@ and instead of your materials definitions include the following:
    <D value="3.7" />
    <composite ref="Aluminum" n="1" />
    <composite ref="Arsenic" n="1" />
-  </material> 
+  </material>
   <material formula="AlN" name="AluminumNitride" affinity="0.6" bandgap="6.2" conductortype="semi"
    soundvelocity="7600" defpotential="9.5"  lattice="0.311">
    <D value="3.25" />
    <composite ref="Aluminum" n="1" />
    <composite ref="Nitrogen" n="1" />
-  </material> 
+  </material>
   <material formula="GaAs" name="GalliumArsenide" fermienergy="10.11" affinity="4.07" bandgap="1.43" conductortype="semi"
    soundvelocity="3700" defpotential="12"  lattice="0.565">
    <D value="5.32" />
@@ -258,8 +258,8 @@ and instead of your materials definitions include the following:
    <D value="5.68" />
    <composite ref="Indium" n="1" />
    <composite ref="Arsenic" n="1" />
-  </material>       
-  <material formula="MgO" name="MagnesiumOxide" affinity="1.37" bandgap="7.0" conductortype="insulator" 
+  </material>
+  <material formula="MgO" name="MagnesiumOxide" affinity="1.37" bandgap="7.0" conductortype="insulator"
    soundvelocity="3560." defpotential="2.6"  lattice="0.545">
   <!-- phonon scattering parameters are dummy values taken from SiliconOxide -->
    <D value="3.58" />
@@ -289,13 +289,13 @@ and instead of your materials definitions include the following:
    <D value="3.21" />
    <composite ref="Silicon" n="1" />
    <composite ref="Carbon" n="1" />
-  </material> 
+  </material>
   <material formula="SiC" name="lowdensSiC" fermienergy="7.9" affinity="4.05" bandgap="2.2" conductortype="semi"
    soundvelocity="13300." defpotential="11.4"  lattice="0.436">
    <D value="2.14" /> <!-- reduced by half!-->
    <composite ref="Silicon" n="1" />
    <composite ref="Carbon" n="1" />
-  </material>   
+  </material>
   <material formula="Si3N4" name="SiliconNitride" affinity="1.5" bandgap="4.5" conductortype="insulator"
      soundvelocity="3560." defpotential="2.6"  lattice="0.545">
   <!-- phonon scattering parameters are dummy values taken from SiliconOxide ; original affinity="1.5";
@@ -349,7 +349,7 @@ and instead of your materials definitions include the following:
    <D value="1.27" /> <!-- D reduced by half -->
    <composite ref="Silicon" n="1" />
    <composite ref="Oxygen" n="2" />
-  </material>    
+  </material>
   <material formula="PSiO2" name="PdopedSiliconOxide" affinity="0.95" bandgap="9" conductortype="insulator"
     soundvelocity="3560." defpotential="2.6"  lattice="0.545">
    <D value="2.533" />
@@ -378,7 +378,4 @@ and instead of your materials definitions include the following:
    <D value="7.5e-7" /> <!-- ca 1 mbar of water vapor at room temperature -->
    <composite ref="Hydrogen" n="2" />
    <composite ref="Oxygen" n="1" />
-  </material>    
- 
- 
- 
+  </material>
