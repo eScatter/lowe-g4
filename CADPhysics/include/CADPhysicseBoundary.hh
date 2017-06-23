@@ -12,18 +12,22 @@
 #include "G4Electron.hh"
 #include "CADPhysicsUnits.hh"
 
+// for read in hdf5
+#include <csread/material.h>
+#include <csread/units/unit_system.h>
+
 class G4Material;
 
 enum CADPhysicseBoundaryStatus {
 	Undefined,
-	Refraction, 
+	Refraction,
 	TotalInternalReflection,
 	NotAtBoundary,
 	SameMaterial, StepTooSmall,
 	ParticleKilled
 };
 
-class CADPhysicseBoundary : public G4VDiscreteProcess 
+class CADPhysicseBoundary : public G4VDiscreteProcess
 {
 
 public:
@@ -54,6 +58,8 @@ public:
 	CADPhysicseBoundaryStatus GetStatus() const;
 	// Returns the current status.
 
+  void load_material(std::string const & mname);
+
 private:
 
 	void DielectricDielectric();
@@ -72,17 +78,14 @@ private:
 
 	G4Material* Material1;// The materials on both sides of the surface
 	G4Material* Material2;
+  std::map<G4String, G4int> materialList; // map containing al the materials used so far with index
+  G4int materialListIterator;
 
-	G4double workFunction1;// Parameters of both materials
-	G4double workFunction2;
-	G4double affinity1;
-	G4double affinity2;
-	G4double fermiEnergy1;
-	G4double fermiEnergy2;
 	G4double bandbending1;
 	G4double bandbending2;
 	G4double deltaphi1;
 	G4double deltaphi2;
+  std::vector<G4double> vec_barrier; // Vacuum potential barrier per material
 	G4double U1;
 	G4double U2;
 
@@ -95,7 +98,7 @@ private:
 
 };
 
-inline G4bool CADPhysicseBoundary::IsApplicable(const G4ParticleDefinition& 
+inline G4bool CADPhysicseBoundary::IsApplicable(const G4ParticleDefinition&
 												aParticleType)
 {
 	return ( &aParticleType == G4Electron::Electron() );

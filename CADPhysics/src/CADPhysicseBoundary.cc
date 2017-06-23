@@ -21,9 +21,28 @@ CADPhysicseBoundary::CADPhysicseBoundary(const G4String& processName,
    }
    theStatus = Undefined;
    lasttrackID = -1;
+   vec_barrier.clear();
+   materialList.clear();
+   materialList.insert(std::pair<G4String, G4int>("Galactic", 0)); // already add vacuum
+   vec_barrier.push_back(0.0*eV);
+   materialListIterator = 1;
 }
 
 CADPhysicseBoundary::~CADPhysicseBoundary(){}
+
+void CADPhysicseBoundary::load_material(std::string const & mname)
+{
+    G4cout << "Calling CADPhysicseBoundary::load_material for: " << mname << G4endl;
+    std::ostringstream ost;
+    ost << mname << ".mat.hdf5";
+    std::string const & filename = ost.str();
+    material mat(filename);
+    //return G4double((mat.get_barrier() / units::eV).value*eV);
+    //vec_fermieff.push_back(G4double((mat.get_fermi() / units::eV).value)*eV);
+    //vec_bandgap.push_back((mat.get_band_gap() / units::eV).value*eV);
+    //vec_conductortype.push_back(mat.get_conductor_type());
+    vec_barrier.push_back((mat.get_barrier() / units::eV).value*eV);
+}
 
 G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
 {
@@ -143,22 +162,15 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
    OldEnergy = aParticle->GetKineticEnergy();
 
    G4MaterialPropertiesTable* aMPT;
-   G4int cond1 = 0;
-   workFunction1 = 0;
-   affinity1 = 0;
-   fermiEnergy1 = 0;
    bandbending1 = 0;
    deltaphi1 = 0;
-   G4double bandgap1 = 0;
    aMPT = Material1->GetMaterialPropertiesTable();
+
    // Get material properties. An overview:
-   // Work function - energy between Fermi level and vacuum
-   // Fermi energy - kinetic energy of the electron at the Fermi level (often zero for semiconductors and insulators)
-   // Affinity - energy between bottom of the conduction band and vacuum. Used instead of work function for insulators.
    // Bandbending - bending of energy bands near the (vacuum) interface.
    // Deltaphi - additional potential of the whole sample (e.g. due to conductive contact with another material)
 
-   // A note on the meaning of the latter two parameters: at an interface between two materials, bandbending is ignored while the deltaphis
+   // A note on the meaning of the two parameters: at an interface between two materials, bandbending is ignored while the deltaphis
    // lead to an alteration of the potential step; in other words, the potential step is assumed to be always fully localized.
    // At a vacuum interface however, the localized potential step is NOT altered by deltaphi; instead, it is assumed to be present
    // in the form of a patch field that affects the kinetic energy of the particle *before* it reaches the surface. Something similar
@@ -166,49 +178,35 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
    // noticeable on both sides of the surface). See also below in DielectricDielectric().
 
    if (aMPT) {
-      if(aMPT->ConstPropertyExists("CONDUCTORTYPE")) cond1 = (int)(aMPT->GetConstProperty("CONDUCTORTYPE")); // cond==0: metal, cond==1: semi, cond==2 insulator
-      if(aMPT->ConstPropertyExists("WORKFUNCTION")) workFunction1 = aMPT->GetConstProperty("WORKFUNCTION");
-      if(aMPT->ConstPropertyExists("AFFINITY")) affinity1 = aMPT->GetConstProperty("AFFINITY");
-      if(aMPT->ConstPropertyExists("FERMIENERGY")) fermiEnergy1 = aMPT->GetConstProperty("FERMIENERGY");
       if(aMPT->ConstPropertyExists("BANDBENDING")) bandbending1 = aMPT->GetConstProperty("BANDBENDING");
       if(aMPT->ConstPropertyExists("DELTAPHI")) deltaphi1 = aMPT->GetConstProperty("DELTAPHI");
-      if(aMPT->ConstPropertyExists("BANDGAP")) bandgap1 = aMPT->GetConstProperty("BANDGAP");
-      if(!workFunction1) workFunction1 = affinity1;
    }
-   if(cond1!=0 && !fermiEnergy1) {
-      U1 = workFunction1 + bandgap1;
-   } else if(cond1!=0) {
-     U1 = workFunction1 + fermiEnergy1 + bandgap1/2.0;
-   } else {
-     U1 = workFunction1 + fermiEnergy1;
-   } // AT: Redefined the potential step for insulators and semiconductors to take the band gap into account improved for the case when fermiEnergy is zero
 
-   G4int cond2 = 0;
-   workFunction2 = 0;
-   affinity2 = 0;
-   fermiEnergy2 = 0;
+  G4String mname1 = Material1->GetName();
+  U1 = 0.0*eV;
+  if (!materialList.count(mname1)) {
+    CADPhysicseBoundary::load_material(mname1);
+    materialList.insert(std::pair<G4String, G4int>(mname1, materialListIterator));
+    materialListIterator++;
+  }
+  U1 = vec_barrier[materialList.at(mname1)];
+  G4String mname2 = Material2->GetName();
+  U2 = 0.0*eV;
+  if (!materialList.count(mname2)) {
+    CADPhysicseBoundary::load_material(mname2);
+    materialList.insert(std::pair<G4String, G4int>(mname2, materialListIterator));
+    materialListIterator++;
+  }
+  U2 = vec_barrier[materialList.at(mname2)];
+
    bandbending2 = 0;
    deltaphi2 = 0;
-   G4double bandgap2 = 0;
    aMPT = Material2->GetMaterialPropertiesTable();
    // Same for second material.
    if (aMPT) {
-      if(aMPT->ConstPropertyExists("CONDUCTORTYPE")) cond2 = (int)(aMPT->GetConstProperty("CONDUCTORTYPE"));
-      if(aMPT->ConstPropertyExists("WORKFUNCTION")) workFunction2 = aMPT->GetConstProperty("WORKFUNCTION");
-      if(aMPT->ConstPropertyExists("AFFINITY")) affinity2 = aMPT->GetConstProperty("AFFINITY");
-      if(aMPT->ConstPropertyExists("FERMIENERGY")) fermiEnergy2 = aMPT->GetConstProperty("FERMIENERGY");
       if(aMPT->ConstPropertyExists("BANDBENDING")) bandbending2 = aMPT->GetConstProperty("BANDBENDING");
       if(aMPT->ConstPropertyExists("DELTAPHI")) deltaphi2 = aMPT->GetConstProperty("DELTAPHI");
-      if(aMPT->ConstPropertyExists("BANDGAP")) bandgap2 = aMPT->GetConstProperty("BANDGAP");
-      if(!workFunction2) workFunction2 = affinity2;
    }
-   if(cond2!=0 && !fermiEnergy2) {
-      U2 = workFunction2 + bandgap2;
-   } else if(cond2!=0) {
-     U2 = workFunction2 + fermiEnergy2 + bandgap2/2.0;
-   } else {
-     U2 = workFunction2 + fermiEnergy2;
-   } // AT: Redefined the potential step for insulators and semiconductors to take the band gap into account improved for the case when fermiEnergy is zero
 
    Ugain = U2 + deltaphi2 - (U1 + deltaphi1);// Total kinetic energy gained when going from material 1 to material 2
    deltaU = Ugain;// Maximum height of the potential barrier to be overcome; criterion for transmission or reflection
