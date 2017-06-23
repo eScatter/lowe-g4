@@ -43,6 +43,7 @@
 #include "Randomize.hh"
 #include "G4ProductionCutsTable.hh"
 #include <sstream>
+#include <algorithm>
 #include "G4MaterialPropertiesTable.hh"
 #include "G4MaterialCutsCouple.hh"
 #include "G4Gamma.hh" //for X-ray fluorescence
@@ -197,10 +198,13 @@ void CADPhysicsDI::load_material(std::string const & filename, double high_energ
   inelastic_imfp_vector.push_back(mat.get_inelastic_imfp(inelastic_low, inelastic_high, N_K));
   inelastic_icdf_vector.push_back(mat.get_inelastic_w0_icdf(inelastic_low, inelastic_high, N_K, N_P));
   ionization_icdf_vector.push_back(mat.get_ionization_icdf(ionization_low, ionization_high, N_K, N_P));
-  outershelltable.push_back(mat.get_outer_shells());
-  if (outershelltable[-1].size()>0) {
+  std::vector<float> tmp_outershells = mat.get_outer_shells();
+  std::sort(tmp_outershells.begin(),tmp_outershells.end());
+  outershelltable.push_back(tmp_outershells);
+  if (!outershelltable.back().empty()) {
     outershells.push_back(true);
     for (float& f: outershelltable.back()) {
+      G4cout << "outershells: " << f << G4endl;
       f *= eV;
     }
   } else {
