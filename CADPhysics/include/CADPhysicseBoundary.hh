@@ -58,7 +58,7 @@ public:
 	CADPhysicseBoundaryStatus GetStatus() const;
 	// Returns the current status.
 
-  void load_material(std::string const & mname);
+  G4double load_material(std::string const & mname);
 
 private:
 
@@ -78,14 +78,12 @@ private:
 
 	G4Material* Material1;// The materials on both sides of the surface
 	G4Material* Material2;
-  std::map<G4String, G4int> materialList; // map containing al the materials used so far with index
-  G4int materialListIterator;
 
 	G4double bandbending1;
 	G4double bandbending2;
 	G4double deltaphi1;
 	G4double deltaphi2;
-  std::vector<G4double> vec_barrier; // Vacuum potential barrier per material
+  std::map<G4String, G4double> map_barrier; // Vacuum potential barrier per material
 	G4double U1;
 	G4double U2;
 

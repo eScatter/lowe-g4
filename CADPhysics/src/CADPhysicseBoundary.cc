@@ -21,27 +21,24 @@ CADPhysicseBoundary::CADPhysicseBoundary(const G4String& processName,
    }
    theStatus = Undefined;
    lasttrackID = -1;
-   vec_barrier.clear();
-   materialList.clear();
-   materialList.insert(std::pair<G4String, G4int>("Galactic", 0)); // already add vacuum
-   vec_barrier.push_back(0.0*eV);
-   materialListIterator = 1;
+   map_barrier.clear();
+   map_barrier.insert(std::pair<G4String, G4double>("Galactic", 0.0*eV)); // already add vacuum
 }
 
 CADPhysicseBoundary::~CADPhysicseBoundary(){}
 
-void CADPhysicseBoundary::load_material(std::string const & mname)
+G4double CADPhysicseBoundary::load_material(std::string const & mname)
 {
     G4cout << "Calling CADPhysicseBoundary::load_material for: " << mname << G4endl;
     std::ostringstream ost;
     ost << mname << ".mat.hdf5";
     std::string const & filename = ost.str();
     material mat(filename);
-    //return G4double((mat.get_barrier() / units::eV).value*eV);
+    return G4double((mat.get_barrier() / units::eV).value*eV);
     //vec_fermieff.push_back(G4double((mat.get_fermi() / units::eV).value)*eV);
     //vec_bandgap.push_back((mat.get_band_gap() / units::eV).value*eV);
     //vec_conductortype.push_back(mat.get_conductor_type());
-    vec_barrier.push_back((mat.get_barrier() / units::eV).value*eV);
+    //vec_barrier.push_back((mat.get_barrier() / units::eV).value*eV);
 }
 
 G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
@@ -184,20 +181,17 @@ G4VParticleChange* CADPhysicseBoundary::PostStepDoIt(const G4Track& aTrack, cons
 
   G4String mname1 = Material1->GetName();
   U1 = 0.0*eV;
-  if (!materialList.count(mname1)) {
-    CADPhysicseBoundary::load_material(mname1);
-    materialList.insert(std::pair<G4String, G4int>(mname1, materialListIterator));
-    materialListIterator++;
+  if (!map_barrier.count(mname1)) {
+    map_barrier.insert(std::pair<G4String, G4double>(mname1, CADPhysicseBoundary::load_material(mname1)));
   }
-  U1 = vec_barrier[materialList.at(mname1)];
+  U1 = map_barrier.at(mname1);
+
   G4String mname2 = Material2->GetName();
   U2 = 0.0*eV;
-  if (!materialList.count(mname2)) {
-    CADPhysicseBoundary::load_material(mname2);
-    materialList.insert(std::pair<G4String, G4int>(mname2, materialListIterator));
-    materialListIterator++;
+  if (!map_barrier.count(mname2)) {
+    map_barrier.insert(std::pair<G4String, G4double>(mname2, CADPhysicseBoundary::load_material(mname2)));
   }
-  U2 = vec_barrier[materialList.at(mname2)];
+  U2 = map_barrier.at(mname2);
 
    bandbending2 = 0;
    deltaphi2 = 0;
