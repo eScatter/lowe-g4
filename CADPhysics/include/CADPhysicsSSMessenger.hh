@@ -28,11 +28,8 @@ private:
 
 	// User commands
 	G4UIcmdWithABool*		multistepCmd;
-	G4UIcmdWithABool*		diffusionstepCmd;
 	G4UIcmdWithAnInteger*	verboseCmd;
 
 };
 
 #endif
-
-
