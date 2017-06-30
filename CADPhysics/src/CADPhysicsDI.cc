@@ -64,7 +64,8 @@ outershelltable(0),
 //fconductortype("metal"),
 generateSecondaries(true),
 generateXrays(false),
-rangecut(true),
+rangecut(false),
+rangefactor(5.),
 pairsgenerated(0),
 crossSectionHandler(0)
 {
@@ -290,7 +291,7 @@ G4VParticleChange* CADPhysicsDI::Phononloss( const G4Track& track,
    G4double pstepsafety = steppoint->GetSafety();
    G4double electronrange = electron_range_vector[findex].get(finalKinEnergy/eV) * nm;
    if ( finalKinEnergy < max(ffermienergy, fbarrier) ||
-         ((rangecut_vector[findex] && finalKinEnergy < 1.*keV) && pstepsafety > 5.*electronrange) ) {
+         ((rangecut_vector[findex] && finalKinEnergy < 1.*keV) && pstepsafety > rangefactor*electronrange) ) {
       // Too low remaining energy, kill the particle.
       //theEnergyDeposit += finalKinEnergy - ffermienergy;
       if(DI_output) {
@@ -708,7 +709,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
                      passenergy = (e>1.*keV);
                      if (!passenergy) {
                         passenergy = (e>max(ffermienergy,fbarrier) &&
-                                       (!rangecut_vector[findex] || pstepsafety < 5.*electronrange));
+                                       (!rangecut_vector[findex] || pstepsafety < rangefactor*electronrange));
                      }
                   }
                   if (passenergy) {
@@ -767,7 +768,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // Filter for the primary electron energy (similar to the SE filter above)
    G4double electronrange = electron_range_vector[findex].get(finalKinEnergy/eV) * nm;
    if ( finalKinEnergy > max(ffermienergy,fbarrier) &&
-         (!rangecut_vector[findex] || pstepsafety < 5.*electronrange || finalKinEnergy > 1.*keV)) {
+         (!rangecut_vector[findex] || pstepsafety < rangefactor*electronrange || finalKinEnergy > 1.*keV)) {
       // The particle survives
       // Update the primary electron direction assuming conservation of momentum
       G4ThreeVector finalP = primaryDirection - cost * newdir;

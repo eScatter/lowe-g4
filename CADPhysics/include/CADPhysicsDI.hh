@@ -190,6 +190,9 @@ private:
       // Determines whether X ray photons are generated.
    G4bool rangecut;
       // Determines whether the electrons are absorbed using the electron range.
+   G4double rangefactor;
+      // Used to determine whether an electron is too far from the nearest
+      // surface if pstessafety > rangefactor * electron_range
    G4int pairsgenerated;
       // Counter for the number of secondary electrons created.
 
