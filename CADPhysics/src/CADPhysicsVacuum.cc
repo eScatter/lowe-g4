@@ -46,3 +46,15 @@ typename material::ionization_table_t CADPhysicsVacuum::get_vacuum_ionization()
 		energy_axis, prob_axis, data_vector
 	);
 }
+
+typename material::imfp_table_t CADPhysicsVacuum::get_vacuum_range()
+{
+	using real = material::fast_real;
+	ax_logspace<real> energy_axis(1, 2, 2);
+	std::vector<real> data_vector(2, -std::numeric_limits<real>::infinity());
+
+	return material::imfp_table_t::base_type
+	(
+		energy_axis, data_vector
+	);
+}

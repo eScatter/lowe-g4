@@ -20,6 +20,8 @@ typename material::icdf_table_t get_vacuum_icdf();
 // Create ionization table that always returns -1 binding energy
 // Also works for all possible energies.
 typename material::ionization_table_t get_vacuum_ionization();
+
+typename material::imfp_table_t get_vacuum_range();
 };
 
 #endif

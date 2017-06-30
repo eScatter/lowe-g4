@@ -64,6 +64,7 @@ outershelltable(0),
 //fconductortype("metal"),
 generateSecondaries(true),
 generateXrays(false),
+rangecut(true),
 pairsgenerated(0),
 crossSectionHandler(0)
 {
@@ -103,6 +104,13 @@ void CADPhysicsDI::BuildPhysicsTable(const G4ParticleDefinition& /*aParticleType
    vec_bandgap.clear();
    vec_conductortype.clear();
    vec_barrier.clear();
+   inelastic_imfp_vector.clear();
+   inelastic_icdf_vector.clear();
+   ionization_icdf_vector.clear();
+   outershelltable.clear();
+   outershells.clear();
+   electron_range_vector.clear();
+   rangecut_vector.clear();
 
 
    // Create material-independent tabulated data
@@ -149,8 +157,8 @@ void CADPhysicsDI::load_material(std::string const & filename, double high_energ
   const double low_energy = mat.get_barrier().value;
   // Get the energy ranges stored in the hdf5 file.
   auto in_range = mat.get_inelastic_energy_range();
-  auto el_range = mat.get_elastic_energy_range();
   auto io_range = mat.get_ionization_energy_range();
+  auto ran_range = mat.get_electron_range_energy_range();
 
   // Print diagnostic info
   std::cout << "Material: " << mat.get_name() << std::endl
@@ -159,7 +167,6 @@ void CADPhysicsDI::load_material(std::string const & filename, double high_energ
     << "  Band gap        = " << (mat.get_band_gap() / units::eV).value << " eV" << std::endl
     << "  Phonon loss     = " << (mat.get_phonon_loss() / units::eV).value << " eV" << std::endl
     << "  Density         = " << (mat.get_density() * (units::cm * units::cm * units::cm)).value << " cm^-3" << std::endl
-    << "  Elastic range   = [" << el_range.first << ", " << el_range.second << "] eV" << std::endl
     << "  Inelastic range = [" << in_range.first << ", " << in_range.second << "] eV" << std::endl;
 
     vec_fermieff.push_back(G4double((mat.get_fermi() / units::eV).value)*eV);
@@ -170,12 +177,10 @@ void CADPhysicsDI::load_material(std::string const & filename, double high_energ
   // Warn if tabulated data has too narrow range
   if (in_range.first > low_energy)
     std::cerr << "WARNING: extrapolating inelastic cross sections between " << in_range.first << " and " << low_energy << " eV" << std::endl;
-  if (el_range.first > low_energy)
-    std::cerr << "WARNING: extrapolating elastic cross sections between " << el_range.first << " and " << low_energy << " eV" << std::endl;
   if (in_range.second < high_energy)
     std::cerr << "WARNING: extrapolating inelastic cross sections between " << in_range.second << " and " << high_energy << " eV" << std::endl;
-  if (el_range.second < high_energy)
-    std::cerr << "WARNING: extrapolating elastic cross sections between " << el_range.second << " and " << high_energy << " eV" << std::endl;
+  if (ran_range.second < 1.*keV)
+    std::cerr << "WARNING: the electron range is only known up to " << ran_range.second << " eV, but it should be known up to 1 keV." << std::endl;
   // No need to warn for the ionization table. Below the lowest tabulated value we should use outer shell energies, and otherwise the band gap.
 
   /*
@@ -186,15 +191,13 @@ void CADPhysicsDI::load_material(std::string const & filename, double high_energ
     * the correct space (log space for imfp tables, while the material
     * class stores imfp tables in linear space).
     */
-  const double elastic_low = std::max(low_energy, el_range.first);
-  const double elastic_high = std::min(high_energy, el_range.second);
   const double inelastic_low = std::max(low_energy, in_range.first);
   const double inelastic_high = std::min(high_energy, in_range.second);
   const double ionization_low = std::max(low_energy, io_range.first);
   const double ionization_high = std::min(high_energy, io_range.second);
+  const double range_low = std::max(low_energy, ran_range.first);
+  const double range_high = ran_range.second;
 
-  elastic_imfp_vector.push_back(mat.get_elastic_imfp(elastic_low, elastic_high, N_K));
-  elastic_icdf_vector.push_back(mat.get_elastic_angle_icdf(elastic_low, elastic_high, N_K, N_P));
   inelastic_imfp_vector.push_back(mat.get_inelastic_imfp(inelastic_low, inelastic_high, N_K));
   inelastic_icdf_vector.push_back(mat.get_inelastic_w0_icdf(inelastic_low, inelastic_high, N_K, N_P));
   ionization_icdf_vector.push_back(mat.get_ionization_icdf(ionization_low, ionization_high, N_K, N_P));
@@ -210,6 +213,8 @@ void CADPhysicsDI::load_material(std::string const & filename, double high_energ
   } else {
     outershells.push_back(false);
   }
+  electron_range_vector.push_back(mat.get_electron_range(range_low, range_high, N_K));
+  rangecut_vector.push_back(rangecut);
 }
 
 void CADPhysicsDI::load_vacuum()
@@ -229,14 +234,14 @@ void CADPhysicsDI::load_vacuum()
     * class stores imfp tables in linear space).
     */
 
-  elastic_imfp_vector.push_back(vac.get_vacuum_imfp()); // this is just to write something, so that the material index is still correct
-  elastic_icdf_vector.push_back(vac.get_vacuum_icdf());
   inelastic_imfp_vector.push_back(vac.get_vacuum_imfp()); // this is just to write something, so that the material index is still correct
   inelastic_icdf_vector.push_back(vac.get_vacuum_icdf());
   ionization_icdf_vector.push_back(vac.get_vacuum_ionization());
   std::vector<float> tmp;
   outershelltable.push_back(tmp);
   outershells.push_back(false);
+  electron_range_vector.push_back(vac.get_vacuum_range());
+  rangecut_vector.push_back(false); // never perform the rangecut for vacuum
 }
 
 
@@ -281,7 +286,11 @@ G4VParticleChange* CADPhysicsDI::Phononloss( const G4Track& track,
    G4double theEnergyDeposit = omegaprime;
 
    // Perform checks for kinetic energy vs. energy limit and electron range vs. safety
-   if ( finalKinEnergy < max(ffermienergy, fbarrier) ) {
+   G4StepPoint* steppoint = step.GetPostStepPoint();
+   G4double pstepsafety = steppoint->GetSafety();
+   G4double electronrange = electron_range_vector[findex].get(finalKinEnergy/eV) * nm;
+   if ( finalKinEnergy < max(ffermienergy, fbarrier) ||
+         ((rangecut_vector[findex] && finalKinEnergy < 1.*keV) && pstepsafety > 5.*electronrange) ) {
       // Too low remaining energy, kill the particle.
       //theEnergyDeposit += finalKinEnergy - ffermienergy;
       if(DI_output) {
@@ -624,6 +633,10 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    dirz += del* delcost;
    G4ThreeVector newdir = G4ThreeVector ( dirx, diry, dirz );
 
+   // Get the local safety for the electon range check
+   G4StepPoint* steppoint = step.GetPostStepPoint();
+   G4double pstepsafety = steppoint->GetSafety();
+
    // Generate secondary particles
 
    // Initialization
@@ -680,7 +693,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
                   }
                   // Get the range for the given kinetic energy (which is different for each
                   // particle)
-                  //G4double electronrange = GetRange(findex,e);
+                  G4double electronrange = electron_range_vector[findex].get(e/eV) * nm;
                   // Energy checks.
                   // The electron is accepted as a new particle if either
                   // - its kinetic energy is larger than 1 keV
@@ -694,7 +707,8 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
                   if (!passenergy) {
                      passenergy = (e>1.*keV);
                      if (!passenergy) {
-                        passenergy = (e>max(ffermienergy,fbarrier));
+                        passenergy = (e>max(ffermienergy,fbarrier) &&
+                                       (!rangecut_vector[findex] || pstepsafety < 5.*electronrange));
                      }
                   }
                   if (passenergy) {
@@ -751,7 +765,9 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // End of generating secondary particles
 
    // Filter for the primary electron energy (similar to the SE filter above)
-   if ( finalKinEnergy > max(ffermienergy,fbarrier) ) {
+   G4double electronrange = electron_range_vector[findex].get(finalKinEnergy/eV) * nm;
+   if ( finalKinEnergy > max(ffermienergy,fbarrier) &&
+         (!rangecut_vector[findex] || pstepsafety < 5.*electronrange || finalKinEnergy > 1.*keV)) {
       // The particle survives
       // Update the primary electron direction assuming conservation of momentum
       G4ThreeVector finalP = primaryDirection - cost * newdir;

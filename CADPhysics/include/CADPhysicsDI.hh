@@ -172,10 +172,10 @@ private:
 
    std::vector<imfp_table<float>> inelastic_imfp_vector;
    std::vector<icdf_table<float>> inelastic_icdf_vector;
-   std::vector<imfp_table<float>> elastic_imfp_vector;
-   std::vector<icdf_table<float>> elastic_icdf_vector;
    std::vector<ionization_table<float>> ionization_icdf_vector;
    std::vector<std::vector<float>> outershelltable;
+   std::vector<typename material::range_table_t> electron_range_vector;
+   std::vector<G4bool> rangecut_vector;
 
    G4int    findex;
    G4double ffermienergy;
@@ -188,6 +188,8 @@ private:
       // Determines whether secondaries are generated.
    G4bool generateXrays;
       // Determines whether X ray photons are generated.
+   G4bool rangecut;
+      // Determines whether the electrons are absorbed using the electron range.
    G4int pairsgenerated;
       // Counter for the number of secondary electrons created.
 
