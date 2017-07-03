@@ -64,7 +64,7 @@ outershelltable(0),
 //fconductortype("metal"),
 generateSecondaries(true),
 generateXrays(false),
-rangecut(false),
+rangecut(true),
 rangefactor(5.),
 pairsgenerated(0),
 crossSectionHandler(0)
