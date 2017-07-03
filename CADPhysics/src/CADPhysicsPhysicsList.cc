@@ -24,8 +24,8 @@ CADPhysicsPhysicsList::CADPhysicsPhysicsList(): G4VUserPhysicsList()
 	// as the lowest kinetic energy for secondary particles.
 	// Hence the abovementioned processes will not generate particles with energy lower than 0.10001 eV.
 	SetVerboseLevel(1);// Setting the verbosity of this class and fCutsTable to 1.
-        G4cout << "Calling CADPhysicsPhysicsList. Version December 2007." << G4endl;
-        G4cout << "- Includes Rutherford scattering model above 30keV. September 2010." << G4endl;
+        G4cout << "Calling CADPhysicsPhysicsList. Version July 2017." << G4endl;
+        //G4cout << "- Includes Rutherford scattering model above 30keV. September 2010." << G4endl;
 }
 
 CADPhysicsPhysicsList::~CADPhysicsPhysicsList() {}
