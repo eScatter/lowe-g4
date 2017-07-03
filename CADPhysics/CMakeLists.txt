@@ -40,5 +40,3 @@ target_link_libraries(CADPhysics csread /home/annemarie/Downloads/hdf5-1.10.1/hd
 install(DIRECTORY DESTINATION)
 install(TARGETS CADPhysics DESTINATION lib)
 install(DIRECTORY include DESTINATION .)
-install(DIRECTORY mott DESTINATION share/CAD)
-install(DIRECTORY df DESTINATION share/CAD)
