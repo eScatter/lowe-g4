@@ -72,7 +72,7 @@ G4GDMLReadMaterials::AtomRead(const xercesc::DOMElement* const atomElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::AtomRead()", "InvalidRead",
@@ -107,7 +107,7 @@ CompositeRead(const xercesc::DOMElement* const compositeElement,G4String& ref)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::CompositeRead()", "InvalidRead",
@@ -142,7 +142,7 @@ G4double G4GDMLReadMaterials::DRead(const xercesc::DOMElement* const DElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::DRead()", "InvalidRead",
@@ -176,7 +176,7 @@ G4double G4GDMLReadMaterials::PRead(const xercesc::DOMElement* const PElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::PRead()", "InvalidRead",
@@ -210,7 +210,7 @@ G4double G4GDMLReadMaterials::TRead(const xercesc::DOMElement* const TElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::TRead()", "InvalidRead",
@@ -262,7 +262,7 @@ G4double G4GDMLReadMaterials::MEERead(const xercesc::DOMElement* const PElement)
 }
 
 void G4GDMLReadMaterials::
-ElementRead(const xercesc::DOMElement* const elementElement) 
+ElementRead(const xercesc::DOMElement* const elementElement)
 {
    G4String name;
    G4String formula;
@@ -282,7 +282,7 @@ ElementRead(const xercesc::DOMElement* const elementElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::ElementRead()", "InvalidRead",
@@ -347,7 +347,7 @@ FractionRead(const xercesc::DOMElement* const fractionElement, G4String& ref)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::FractionRead()", "InvalidRead",
@@ -385,7 +385,7 @@ IsotopeRead(const xercesc::DOMElement* const isotopeElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::IsotopeRead()", "InvalidRead",
@@ -432,10 +432,13 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
    G4double T = STP_Temperature;
    G4double P = STP_Pressure;
    //EB: Added
+   /*
    G4double   mwf = 0.0;
    G4double   fermi = 0.0;
+   */
    G4double   bb = 0.0;
    G4double   deltaphi = 0.0;
+   /*
    G4double   affinity = 0.0;
    G4double   bandgap = 0.0;
    G4int      conductortype = 0;
@@ -443,9 +446,12 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
    G4double   soundvelocity = 0.0;
    G4double   defpotential = 0.0;
    G4double   lattice = 0.0;
+   */
    G4String   formula = "";
+   /*
    vector < double > gasfractions;
    G4double   gasdensity = 0.0;
+   */
    G4bool hasproperties = false;
    // EB: End of addition
    G4double MEE = -1.0;
@@ -463,7 +469,7 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::MaterialRead()", "InvalidRead",
@@ -483,16 +489,19 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
       } else
       // EB: Added properties
       if (attName=="formula") { formula = attValue;} else
+      /*
       if (attName=="workfunction") { mwf = eval.Evaluate(attValue)*eV; if (0!=mwf) hasproperties=true;} else
       if (attName=="fermienergy") { fermi = eval.Evaluate(attValue)*eV; if (0!=fermi) hasproperties=true;} else
+      */
       if (attName=="bandbending") { bb = eval.Evaluate(attValue)*eV; if (0!=bb) hasproperties=true;} else
-      if (attName=="deltaphi") { deltaphi = eval.Evaluate(attValue)*eV; if (0!=deltaphi) hasproperties=true;} else
+      if (attName=="deltaphi") { deltaphi = eval.Evaluate(attValue)*eV; if (0!=deltaphi) hasproperties=true;} //else
+      /*
       if (attName=="affinity") { affinity = eval.Evaluate(attValue)*eV; if (0!=affinity) hasproperties=true;} else
       if (attName=="bandgap") { bandgap = eval.Evaluate(attValue)*eV; if (0!=bandgap) hasproperties=true;} else
       if (attName=="conductortype")
       {
          if (attValue=="insulator")  { conductortype = 2;  } else
-         if (attValue=="semi") { conductortype = 1; } 
+         if (attValue=="semi") { conductortype = 1; }
          if (0!=conductortype) hasproperties=true;
       } else
       if (attName=="resistivity") { resistivity = eval.Evaluate(attValue); if (0!=resistivity) hasproperties=true;} else
@@ -510,7 +519,8 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
          }
          hasproperties=true;
       } else
-      if (attName=="gasdensity") { gasdensity = eval.Evaluate(attValue); if (0!=gasdensity) hasproperties=true;} 
+      if (attName=="gasdensity") { gasdensity = eval.Evaluate(attValue); if (0!=gasdensity) hasproperties=true;}
+      */
       // EB: End of additional properties
    }
 
@@ -555,7 +565,7 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
      MixtureRead(materialElement, material);
    }
 
-   // EB: Added 
+   // EB: Added
    material->SetChemicalFormula(formula);
    if (hasproperties) {
       G4MaterialPropertiesTable* matprop = material->GetMaterialPropertiesTable();
@@ -564,10 +574,13 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
         material->SetMaterialPropertiesTable(
                   matprop = new G4MaterialPropertiesTable());
       }
+      /*
       if (mwf!=0) matprop->AddConstProperty("WORKFUNCTION",mwf);
       if (fermi!=0) matprop->AddConstProperty("FERMIENERGY",fermi);
+      */
       if (bb!=0) matprop->AddConstProperty("BANDBENDING",bb);
       if (deltaphi!=0) matprop->AddConstProperty("DELTAPHI",deltaphi);
+      /*
       if (affinity!=0) matprop->AddConstProperty("AFFINITY",affinity);
       if (bandgap!=0) matprop->AddConstProperty("BANDGAP",bandgap);
       if (conductortype!=0) matprop->AddConstProperty("CONDUCTORTYPE",conductortype);
@@ -581,6 +594,7 @@ MaterialRead(const xercesc::DOMElement* const materialElement)
          matprop->AddConstProperty(property,gasfractions[i]);
       }
       if (gasdensity!=0) matprop->AddConstProperty("GASDENSITY",gasdensity);
+      */
    }
    // EB: End of addition
    if (MEE != -1)  // ionisation potential (mean excitation energy)
@@ -657,7 +671,7 @@ MixtureRead(const xercesc::DOMElement *const mixtureElement,
       {
          G4String ref;
          G4double n = FractionRead(child,ref);
-         
+
          G4Material *materialPtr = GetMaterial(GenerateName(ref,true), false);
          G4Element *elementPtr = GetElement(GenerateName(ref,true), false);
 
@@ -669,9 +683,9 @@ MixtureRead(const xercesc::DOMElement *const mixtureElement,
             G4String error_msg = "Referenced material/element '"
                                + GenerateName(ref,true) + "' was not found!";
             G4Exception("G4GDMLReadMaterials::MixtureRead()", "InvalidSetup",
-                        FatalException, error_msg);   
+                        FatalException, error_msg);
          }
-      } 
+      }
       else if (tag=="composite")
       {
          G4String ref;
@@ -683,7 +697,7 @@ MixtureRead(const xercesc::DOMElement *const mixtureElement,
             G4String error_msg = "Referenced material/element '"
                                + GenerateName(ref,true) + "' was not found!";
             G4Exception("G4GDMLReadMaterials::MixtureRead()", "InvalidSetup",
-                        FatalException, error_msg);   
+                        FatalException, error_msg);
          }
          material->AddElement(elementPtr,n);
       }
@@ -711,7 +725,7 @@ PropertyRead(const xercesc::DOMElement* const propertyElement,
       { continue; }
 
       const xercesc::DOMAttr* const attribute
-            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);   
+            = dynamic_cast<xercesc::DOMAttr*>(attribute_node);
       if (!attribute)
       {
         G4Exception("G4GDMLReadMaterials::PropertyRead()", "InvalidRead",
@@ -782,10 +796,10 @@ MaterialsRead(const xercesc::DOMElement* const materialsElement)
       }
       const G4String tag = Transcode(child->getTagName());
 
-      
-      if (tag=="define")   { DefineRead(child);  }  else 
-      if (tag=="element")  { ElementRead(child); }  else 
-      if (tag=="isotope")  { IsotopeRead(child); }  else 
+
+      if (tag=="define")   { DefineRead(child);  }  else
+      if (tag=="element")  { ElementRead(child); }  else
+      if (tag=="isotope")  { IsotopeRead(child); }  else
       if (tag=="material") { MaterialRead(child); }
       else
       {
