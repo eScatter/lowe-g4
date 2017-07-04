@@ -1,0 +1,3 @@
+[submodule "CADPhysics/3rdparty/csread"]
+	path = CADPhysics/3rdparty/csread
+	url = https://github.com/eScatter/csread.git
