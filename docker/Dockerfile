@@ -5,7 +5,7 @@ RUN echo "deb http://ftp.debian.org/debian jessie-backports main" \
         >> /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y \
-        build-essential libxerces-c-dev
+        build-essential libxerces-c-dev wget
 RUN apt-get -t jessie-backports install --no-install-recommends -y \
         cmake
 RUN apt-get install -y \
@@ -28,7 +28,15 @@ RUN cp geant4.10.02.p02/source/visualization/VRML/include/G4FRClient.hh /usr/loc
 
 RUN /bin/bash -c "source /usr/local/bin/geant4.sh"
 
-RUN git clone http://github.com/eScatter/lowe-g4.git
+RUN wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.1/src/hdf5-1.10.1.tar.gz \
+ && tar xf hdf5-1.10.1.tar.gz \
+ && cd hdf5-1.10.1 \
+ && ./configure --enable-cxx --prefix=/usr/local \
+ && make && make install
+
+RUN git clone -b hdf5 https://github.com/eScatter/lowe-g4.git \
+ && cd lowe-g4 && git submodule init && git submodule update
+
 RUN        mkdir build-CAD \
         && cd build-CAD \
         && cmake ../lowe-g4/CADPhysics \
