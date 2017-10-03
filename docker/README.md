@@ -9,5 +9,6 @@ or follow [this link](http://geant4.web.cern.ch/geant4/support/source/geant4.10.
 
         docker build -t geant4 .
 
-and get some coffee. We have a small example in `Examples/Transmission`. This should run without errors.
+and get some coffee. We have a small example in `Examples/Transmission`. This should run without errors with the command
 
+        ./run.sh
