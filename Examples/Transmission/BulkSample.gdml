@@ -5,7 +5,7 @@
 <gdml xmlns:gdml="http://cern.ch/2001/Schemas/GDML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/annemarie/geant4.10.0p02/geant4.10.00.02/environments/g4py/examples/gdml/GDMLSchema/gdml.xsd" >
 <!--
 
-  Definition of a bulk sample (default material BlackHole).
+  Definition of a bulk sample (default material Galactic).
 
   The geometry consists of a cylindrical sample with a detector directly on top of it (but not touching).
   The modules world volume is 0.05 mm larger than the sample in the z-direction (in both +z and -z direction).

@@ -16,8 +16,6 @@
 /detectors/PlaneT/outputCounts {directory}/YieldT_{material}.dat
 #/detectors/PlaneR/outputEnergyPDF {directory}/EnergyPDF_{material}_{energy}.dat
 #/detectors/PlaneR/outputEnergyHistogram {directory}/EnergyHistogram_{material}_{energy}.dat
-/detectors/PlaneR/outputHits {directory}/EmissionR_{material}_{energy}eV.dat
-/detectors/PlaneT/outputHits {directory}/EmissionT_{material}_{energy}eV.dat
+#/detectors/PlaneR/outputHits {directory}/EmissionR_{material}_{energy}eV.dat
+#/detectors/PlaneT/outputHits {directory}/EmissionT_{material}_{energy}eV.dat
 #/detectors/Sample/outputHits {directory}/EmissionSample_{material}_{energy}.dat
-##/detectors/PlaneR/PDFFilename {directory}/PlanePDF_{material}_{energy}.dat
-##/detectors/PlaneR/detHistFilename {directory}/Hist_{material}.dat

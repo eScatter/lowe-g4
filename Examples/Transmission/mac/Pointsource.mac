@@ -9,7 +9,7 @@
 /gps/pos/rot2 0.0 1.0 0.0
 /gps/pos/radius 0.0 mm
 /gps/ang/type planar #iso 
-/gps/direction 0.0 0.0 -1.0 #-0.70710678118 0.0 -0.70710678118
+/gps/direction 0.0 0.0 -1.0
 /gps/number 1
 
 # The position of the gun and the energy of the primaries must

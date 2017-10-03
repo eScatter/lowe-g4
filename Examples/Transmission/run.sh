@@ -1,6 +1,6 @@
 #!/bin/sh
 job=results
-for material in Alumina Silicon
+for material in silicon
 do
 	echo Starting job for ${material}
 	sed "s/MATERIAL/${material}/g" YieldCurve.mac > Yield${material}.mac
