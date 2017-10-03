@@ -415,7 +415,8 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // limit of eq. 9 in Ashley, but corrected for the Fermi energy. The lower limit is set equal
    // to omegaprime (for outer shells) or to eq. 10 in Ashley (otherwise), where the latter
    // takes momentum conservation into account.
-   G4double omegamax = 0.5*(kineticEnergy + omegaprime - ffermienergy);
+   //G4double omegamax = 0.5*(kineticEnergy + omegaprime - ffermienergy); // Kieft and Bosch L function
+   G4double omegamax = kineticEnergy - ffermienergy; // dv1 L function
    G4double omegamin = omegaprime;
    G4double Ebindprime = 0.;
    // EK: 2013-06-12 Modified if statement
@@ -425,6 +426,7 @@ G4VParticleChange* CADPhysicsDI::PostStepDoIt( const G4Track& track, const G4Ste
    // New version:
    if(kineticEnergy > 2.*omegaprime) {
       // Use Ashley's limit, as long as momentum conservation is possible
+      omegamax = min(omegamax,0.5*(kineticEnergy + omegaprime + sqrt(kineticEnergy * (kineticEnergy - 2*omegaprime))) ); // dv1 L function
       omegamin = 0.5*(kineticEnergy+omegaprime-sqrt(kineticEnergy*(kineticEnergy-2.*omegaprime)));
       Ebindprime = omegaprime;
    } else {
